@@ -1,0 +1,22 @@
+HistData.com (c) 2012
+File: DAT_XLSX_GBPUSD_M1_202002.csv Status Report
+
+Gap of 97s found between 20200203134454 and 20200203134637.
+Gap of 96s found between 20200209173907 and 20200209174049.
+Gap of 841s found between 20200211155800 and 20200211161208.
+Gap of 339s found between 20200211165950 and 20200211170535.
+Gap of 105s found between 20200211231450 and 20200211231641.
+Gap of 70s found between 20200211235721 and 20200211235837.
+Gap of 61s found between 20200212010807 and 20200212010914.
+Gap of 63s found between 20200212170312 and 20200212170421.
+Gap of 71s found between 20200214143846 and 20200214144003.
+Gap of 63s found between 20200217180619 and 20200217180729.
+Gap of 61s found between 20200218164119 and 20200218164227.
+Gap of 70s found between 20200218170115 and 20200218170231.
+Gap of 174s found between 20200219170042 and 20200219170342.
+Gap of 140s found between 20200223171909 and 20200223172136.
+Gap of 64s found between 20200224163324 and 20200224163435.
+Gap of 74s found between 20200225162126 and 20200225162246.
+
+Average tick interval: 5425 miliseconds.
+Maximum tick interval found: 841325 miliseconds.
