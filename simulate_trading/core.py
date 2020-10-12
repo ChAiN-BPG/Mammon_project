@@ -68,14 +68,14 @@ class Simforex :
     
     def add_period (self,money,start_time,period,stop_time = None):
         ## เปลี่ยนวิธี fatch ข้อมูลใหม่ เพราะ เราจัด file ใหม่ // done
-        data = pd.read_excel('ML_TEST/Data/Timeframe_data/'+ str(start_time)+ '/'+ money +'-'+ str(start_time)+'_'+ period +'.xlsx',header=None)
+        data = pd.read_excel('data/TimeFrame/'+ str(start_time)+ '/'+ money +'-'+ str(start_time)+'_'+ period +'.xlsx',header=None)
         if stop_time == None:
             self.period = str(period)
             self.type_money = money
             self.data = data
             return
         for Index in range(start_time+1,stop_time+1):
-            resdata = pd.read_excel('ML_TEST/Data/Timeframe_data/'+ str(Index)+ '/'+ money +'-'+ str(Index)+'_'+ period +'.xlsx',header=None)
+            resdata = pd.read_excel('data/TimeFrame/'+ str(Index)+ '/'+ money +'-'+ str(Index)+'_'+ period +'.xlsx',header=None)
             data = pd.concat([data,resdata])
         self.period = str(period)
         self.type_money = money
@@ -278,7 +278,7 @@ class Simforex :
 
         df_transection = pd.DataFrame(self.transection)
         df_transection.columns =  ['Type','OpenOrder','CloseOrder','lot','outcome','Profit','Loss','budget']
-        df_transection.to_csv('transection.csv')
+        df_transection.to_csv('test/transaction/transection.csv')
         T_loss = df_transection[df_transection.outcome < 0]
         T_profit = df_transection[df_transection.outcome >= 0]
         profit_per = (len(T_profit)/len(self.transection)) * 100
