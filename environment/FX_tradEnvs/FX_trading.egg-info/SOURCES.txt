@@ -1,0 +1,6 @@
+setup.py
+FX_trading.egg-info/PKG-INFO
+FX_trading.egg-info/SOURCES.txt
+FX_trading.egg-info/dependency_links.txt
+FX_trading.egg-info/requires.txt
+FX_trading.egg-info/top_level.txt
