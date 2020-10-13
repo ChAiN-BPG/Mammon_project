@@ -29,7 +29,7 @@ class ForexEnv_test(gym.Env):
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
         self.action_space = spaces.Discrete(2) 
-        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(13,), dtype=np.float32)
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:5]
@@ -185,7 +185,7 @@ class ForexEnv_test(gym.Env):
                 - check action : 0 = do not thing , 1 = buy order , 2 = sell order , 3 = close
                 - create observation that include state and reward
         """
-        # episode_over = bool(0)
+        episode_over = bool(0)
         # self.wrong_move = False
         ## check can afford order
         if ((self.budget * self.leverage) < (self.lot * self.amount)):

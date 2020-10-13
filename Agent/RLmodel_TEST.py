@@ -4,6 +4,7 @@ from tensorforce import Runner , Agent
 from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
 
+
 environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 agent = dict(
         
@@ -13,7 +14,7 @@ agent = dict(
         batch_size=1, update_frequency=2, learning_rate=3e-4,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
         summarizer = dict(directory= 'test/summaries'),
-        saver=dict(directory='/testmodel_saver', frequency=10, max_checkpoints=20),
+        saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=20),
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
