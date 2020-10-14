@@ -46,7 +46,7 @@ class ForexEnv_test(gym.Env):
         self.leverage = 100 
         self.sperad = 0.00022
         # the order details
-        self.order_state = -1 #  1 = buy order , 0 = sell order
+        self.order_state = None #  1 = buy order , 0 = sell order
         self.order_time = 0
         self.order_price = 0
         self.count_ordered = 0
@@ -75,7 +75,7 @@ class ForexEnv_test(gym.Env):
         
     def _calculate_(self,action):
         profit = 0
-        if self.order_state == 0 : return profit
+        if self.order_state == None : return profit
         if self.order_state == 1 :
             profit = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
         elif self.order_state == -1 :
@@ -89,9 +89,9 @@ class ForexEnv_test(gym.Env):
 
 
     def _order_(self,action):
-        # if self.order_state != 0 : 
-        #     self.wrong_move = True
-            # return
+        if self.order_state != None : 
+            # self.wrong_move = True
+            return
         start_cur = self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
         current_price = start_cur * self.lot * self.amount
         self.order_price = current_price
@@ -107,9 +107,9 @@ class ForexEnv_test(gym.Env):
 
 
     def _close_(self,value):
-        # if self.order_state == 0 :
-        #     self.wrong_move = True
-            # return
+        if self.order_state == None :
+            # self.wrong_move = True
+            return
         ## collect data
         data_type  = "BUY" if self.order_state == 1 else "SELL"
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
@@ -119,7 +119,7 @@ class ForexEnv_test(gym.Env):
         data_time = self.time_data
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
         ## reset 
-        self.order_state = 0 
+        self.order_state = None
         self.order_time = 0
         self.order_price = 0
         self.count_ordered += 1
@@ -137,11 +137,11 @@ class ForexEnv_test(gym.Env):
 
         observation = [data(t),order_state,order_price]
         """
-        if self.tick_data < 3 :
+        if self.tick_data < 2 :
             data = self.my_data[self.tick_data,1:]
             data = np.array([data,data,data])
         else :
-            data = self.my_data[self.tick_data - 2 :self.tick_data,1:15]
+            data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
         obs_data = self.encoder.transform(data) 
         obs_data = obs_data.flatten()
         out = 0
@@ -169,9 +169,12 @@ class ForexEnv_test(gym.Env):
         
         ## กรณี order แล้ว
         Shortterm = 0 
-        if self.order_state > 0 :
-            Shortterm +=  (value + 1) * 100 ##  เปิด order 
+        if self.order_state != None :
+            Shortterm +=  (value + 1) * 10 ##  เปิด order 
         reward = Longterm + Shortterm
+
+        ## กรณีที่ปิดถูก
+        
         return reward
     
 
@@ -220,7 +223,7 @@ class ForexEnv_test(gym.Env):
         self.count_tick = 0
         self.balance = 200
         self.budget = self.balance
-        self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
+        self.order_state = None # 0 = nop , 1 = buy order , 2 = sell order
         self.order_time = 0
         self.order_price = 0
         self.profit_order = 0
