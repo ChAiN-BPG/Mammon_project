@@ -11,11 +11,13 @@ agent = dict(
         agent='ac',
         # Automatically configured network
         network=[
-        dict(type='dense', size=64, activation='relu'),
-        dict(type='dense', size=64, activation='relu'),
-        dict(type='dense', size=64, activation='relu'),
-        dict(type='dense', size=32, activation='relu'),
-        dict(type='dense', size=16, activation='relu')
+        dict(type='dense', size=64, activation='tanh'),
+        dict(type='dense', size=64, activation='tanh'),
+        dict(type='dense', size=32, activation='tanh'),
+        dict(type='dense', size=16, activation='tanh'),
+        dict(type='dense', size=8, activation='tanh'),
+        dict(type='dense', size=4, activation='tanh'),
+        dict(type='dense', size=2, activation='tanh')
     ],
         batch_size=1, update_frequency=2, learning_rate=3e-4,
         # Save agent every 10 updates and keep the 5 most recent checkpoints

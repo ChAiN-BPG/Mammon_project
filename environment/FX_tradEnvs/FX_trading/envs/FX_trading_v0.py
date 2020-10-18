@@ -211,7 +211,8 @@ class ForexEnv_test(gym.Env):
                 self._close_(outcome)
                 self._order_(action)
             obs = self._next_observation()
-            reward = self._reward_(action,outcome)
+            # reward = self._reward_(action,outcome)
+            reward = outcome
             self.count_tick += 1
             # self.rew += reward
         return obs , reward , episode_over, {}
