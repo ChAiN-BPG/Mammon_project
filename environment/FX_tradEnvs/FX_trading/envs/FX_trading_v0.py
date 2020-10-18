@@ -128,6 +128,7 @@ class ForexEnv_test(gym.Env):
         else :
             self.profit_order += 1
         self.budget += value
+
         
 
 
@@ -157,23 +158,22 @@ class ForexEnv_test(gym.Env):
 
     def _reward_(self,action,value):
         reward = 0
-    
-        ## กรณี เล่นผิด
-        # if self.wrong_move :
-        #     return (-10000)
+        ## เเก้ให้ดีขี้น // do it
 
         ## กรณี ยังไม่order
         Longterm = 0
-        Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
+        # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
         Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
         
-        ## กรณี order แล้ว
+        ## กรณี order แล้วยังไม่ปิด
         Shortterm = 0 
-        if self.order_state != None :
-            Shortterm +=  (value + 1) * 10 ##  เปิด order 
+        ## การที่ order ปิดถูก-ผิดมีผล
+
+
+
         reward = Longterm + Shortterm
 
-        ## กรณีที่ปิดถูก
+        ## กรณีที่ปิดถูก หรือ ปิดผิด
         
         return reward
     
@@ -208,6 +208,7 @@ class ForexEnv_test(gym.Env):
               
             if action != self.order_state :
                 self._close_(outcome)
+                outcome = 0
                 self._order_(action)
             obs = self._next_observation()
             reward = self._reward_(action,outcome)

@@ -20,7 +20,7 @@ agent = dict(
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
-runner.run(num_episodes=100)
+runner.run(num_episodes=1000)
 runner.close()
 # agent = Agent.load(directory='model', format='checkpoint')
 

@@ -24,7 +24,7 @@ data = {
     "close price" : close_data
 }
 new_dataset = pd.DataFrame(data)
-new_dataset.to_excel("data/Test_data/sin_dataset.xlsx")
+# new_dataset.to_excel("data/Test_data/sin_dataset.xlsx")
 # print(new_dataset)
 fig_data = go.Figure()
 
