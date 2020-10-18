@@ -10,7 +10,13 @@ agent = dict(
         
         agent='ac',
         # Automatically configured network
-        network='auto',
+        network=[
+        dict(type='dense', size=64, activation='relu'),
+        dict(type='dense', size=64, activation='relu'),
+        dict(type='dense', size=64, activation='relu'),
+        dict(type='dense', size=32, activation='relu'),
+        dict(type='dense', size=16, activation='relu')
+    ],
         batch_size=1, update_frequency=2, learning_rate=3e-4,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
         summarizer = dict(directory= 'test/summaries'),
@@ -20,9 +26,11 @@ agent = dict(
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
-runner.run(num_episodes=100)
+runner.run(num_episodes=200)
 runner.close()
-# agent = Agent.load(directory='model', format='checkpoint')
+
+
+# agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 
 # env = gym.make('FXTrading-v0')
 # observation = env.reset()

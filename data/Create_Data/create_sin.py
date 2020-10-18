@@ -8,14 +8,14 @@ Fs = 1001
 f = 50
 sample = 1001
 x = np.arange(sample)
-y = np.sin(2 * np.pi * f  * x / Fs) /1000
+y = np.sin(2 * np.pi * f  * x / Fs) 
 y = np.round(y,5)
-y = y + 1.981
+y = y + 2
 print(y)
 open_data = (y[:(len(y))-1])
 close_data = (y[1:])
-high_data = (y[1:] + 0.00033)
-low_data = (y[1:] - 0.00033 )
+high_data = (y[1:] + 0.5 )
+low_data = (y[1:] - 0.5  )
 data = {
     "time"        : x[:(len(x)-1)] ,
     "open price"  : open_data,
@@ -24,7 +24,7 @@ data = {
     "close price" : close_data
 }
 new_dataset = pd.DataFrame(data)
-new_dataset.to_excel("data/Test_data/sin_dataset.xlsx")
+new_dataset.to_excel("data/Test_data/sin_dataset1.xlsx")
 # print(new_dataset)
 fig_data = go.Figure()
 

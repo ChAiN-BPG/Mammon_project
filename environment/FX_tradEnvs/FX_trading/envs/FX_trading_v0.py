@@ -39,7 +39,7 @@ class ForexEnv_test(gym.Env):
         self.data_column = len(self.my_data[0])
         self.count_tick = 0
         # init base for trading
-        self.balance = 200
+        self.balance = 200 # 200
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -67,7 +67,8 @@ class ForexEnv_test(gym.Env):
         self.loss_order = 0 
         # data collector
         self.all_order = []
-        
+        ## test
+        # self.rew = 0
 
 
 
@@ -164,13 +165,13 @@ class ForexEnv_test(gym.Env):
 
         ## กรณี ยังไม่order
         Longterm = 0
-        Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
+        # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
         Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
         
         ## กรณี order แล้ว
         Shortterm = 0 
-        if self.order_state != None :
-            Shortterm +=  (value + 1) * 10 ##  เปิด order 
+        # if self.order_state != None :
+        #     Shortterm +=  (value + 1) * 10 ##  เปิด order 
         reward = Longterm + Shortterm
 
         ## กรณีที่ปิดถูก
@@ -212,7 +213,7 @@ class ForexEnv_test(gym.Env):
             obs = self._next_observation()
             reward = self._reward_(action,outcome)
             self.count_tick += 1
-            
+            # self.rew += reward
         return obs , reward , episode_over, {}
         
 
@@ -235,6 +236,8 @@ class ForexEnv_test(gym.Env):
         self.close_data = 0
         self.high_data = 0
         self.low_data = 0
+
+        # self.rew = 0
         return self._next_observation()
 
 
