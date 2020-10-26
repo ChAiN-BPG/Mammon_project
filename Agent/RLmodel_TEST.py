@@ -11,15 +11,10 @@ agent = dict(
         agent='ac',
         # Automatically configured network
         network=[
-        dict(type='dense', size=64, activation='tanh'),
-        dict(type='dense', size=64, activation='tanh'),
-        dict(type='dense', size=32, activation='tanh'),
-        dict(type='dense', size=16, activation='tanh'),
-        dict(type='dense', size=8, activation='tanh'),
-        dict(type='dense', size=4, activation='tanh'),
-        dict(type='dense', size=2, activation='tanh')
+        dict(type='dense', size=10, activation='tanh')
+        # dict(type='dense', size=64, activation='tanh')
     ],
-        batch_size=1, update_frequency=2, learning_rate=3e-4,
+        batch_size=1, learning_rate=3e-4,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
         summarizer = dict(directory= 'test/summaries'),
         saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=20),

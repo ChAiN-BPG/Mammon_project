@@ -29,7 +29,7 @@ class ForexEnv_test(gym.Env):
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
         self.action_space = spaces.Discrete(2) 
-        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(13,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32)
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:5]
@@ -146,9 +146,9 @@ class ForexEnv_test(gym.Env):
         obs_data = self.encoder.transform(data) 
         obs_data = obs_data.flatten()
         out = 0
-        if self.order_state == 2: out = -1
-        elif self.order_state == 1 : out = 1
-        obs = np.append(obs_data,out) ## ใส่ indicator ด้วยยยยย // done
+        # if self.order_state == 2: out = -1
+        # elif self.order_state == 1 : out = 1
+        # obs = np.append(obs_data,out) ## ใส่ indicator ด้วยยยยย // done
         self.tick_data += 1
         return obs
         
