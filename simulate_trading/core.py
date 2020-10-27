@@ -100,7 +100,6 @@ class Simforex :
             macd_signal = np.where(macd_threshold == 1.0 ,macd_signal,0.0)
             macd_center = np.where(macd > 0 ,-1.0,1.0)
             macd_center = np.delete(macd_center,0,0)
-
             macd_signal = np.where(macd_signal == macd_center, macd_signal,0)
 
             self.signal[0] = macd_signal
