@@ -1,6 +1,6 @@
 import traderFX as TF
 
-rez = TF.traderFX(balance=200)
+rez = TF.traderFX(balance=500)
 rez.GetData(money="GBPUSD",start_year=2004,timeframe="H1")
 # print(rez.dataset)
 class smatrade():
@@ -15,15 +15,16 @@ class smatrade():
             rez.last_cross = "BUY"
         if len(rez.order) >= 1:
             if self.adx14[1] < 40:
-                rez.send_signal(tick,"close",order_id = 0)
+                rez.send_signal(index,tick,"close",order_id = 0)
         if len(rez.order) < 1:
             if rez.last_cross == "BUY":
                 if rez.Touch(tick,self.ema12):
-                    rez.send_signal(tick,"BUY")
+                    rez.send_signal(index,tick,"BUY")
                     rez.last_cross = None
             if rez.last_cross == "SELL":
                 if rez.Touch(tick,self.ema12):
-                    rez.send_signal(tick,"SELL")
+                    rez.send_signal(index,tick,"SELL")
                     rez.last_cross = None
 
 rez.run(smatrade)
+
