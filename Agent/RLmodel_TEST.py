@@ -13,14 +13,8 @@ agent = dict(
         # Automatically configured network
         network=[
         dict(type='dense', size=10, activation='tanh')
-<<<<<<< HEAD
     ],
         batch_size=5, learning_rate=3e-4,
-=======
-        # dict(type='dense', size=64, activation='tanh')
-    ],
-        batch_size=1, learning_rate=3e-4,
->>>>>>> 295c222794a1b6895661dccb254a8983c7675fae
         # Save agent every 10 updates and keep the 5 most recent checkpoints
         summarizer = dict(directory= 'test/summary_ac'),
         saver=dict(directory='test/testmodel_saver3', frequency=10, max_checkpoints=20),
