@@ -1,7 +1,7 @@
 import traderFX as TF
 
 test = TF.traderFX(balance=200,lot= "mini")
-test.get_data(currancy="GBPUSD",start_year=2004)
+test.get_data(currancy="GBPUSD",start_year=2006)
 test.last_cross = None
 # # print(test.balance)
 # # print(test.budget)
