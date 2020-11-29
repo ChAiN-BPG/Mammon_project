@@ -145,12 +145,12 @@ class ForexEnv_test(gym.Env):
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
         obs_data = self.encoder.transform(data) 
         obs_data = obs_data.flatten()
-        out = 0
+        # out = 0
         # if self.order_state == 2: out = -1
         # elif self.order_state == 1 : out = 1
         # obs = np.append(obs_data,out) ## ใส่ indicator ด้วยยยยย // done
         self.tick_data += 1
-        return obs
+        return obs_data
         
 
 
