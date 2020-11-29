@@ -61,13 +61,13 @@ class traderFX:
 
 
 
-    def send_order(self,index,tick,Type,amount = 0.5,order_id = None):
+    def send_order(self,index,tick,Type,amount = 0.5,order_id = None,TP = None,SL = None):
         if Type == "BUY":
             if (self.budget * self.leverage) >= (amount * self.lot):
                 time = index
-                value = tick[4] - (self.spread/2)
+                value = tick[4] + (self.spread/2)
                 price = (amount * self.lot) * (value)
-                self.order.append([time,Type,amount,value,price])
+                self.order.append([time,Type,amount,value,price,TP,SL])
                 self.open.append([time,Type,amount,value,price])
             else:
                 print("You cant afford order!! You lose!!")
@@ -76,9 +76,9 @@ class traderFX:
         elif Type == "SELL":
             if (self.budget * self.leverage) >= (amount * self.lot):
                 time = index
-                value = tick[4] + (self.spread/2)
+                value = tick[4] - (self.spread/2)
                 price = (amount * self.lot) * (value)
-                self.order.append([time,Type,amount,value,price])
+                self.order.append([time,Type,amount,value,price,TP,SL])
                 self.open.append([time,Type,amount,value,price])
             else:
                 print("You cant afford order!! You lose!!")
@@ -219,16 +219,46 @@ class traderFX:
             signal = bool(1)
         return signal
 
+    def Crossprice(self,index,value):
+        signal = False
+        if self.dataset.loc[index,"low"] <= value[index] <= self.dataset.loc[index,"high"] :
+            signal = True
+        return signal
+
+    def stop_loss (self,index,tick,id):
+        x = self.order[id]
+        if x[1] == "BUY":
+            if tick[4] <= x[6]:
+                self.send_order(index,tick,"close",order_id=id)
+        if x[1] == "SELL":
+            if tick[4] >= x[6]:
+                self.send_order(index,tick,"close",order_id=id)
+
+    def Take_profit(self,index,tick,id):
+        x = self.order[id]
+        if x[1] == "BUY":
+            if tick[4] >= x[5]:
+                self.send_order(index,tick,"close",order_id=id)
+        if x[1] == "SELL":
+            if tick[4] <= x[5]:
+                self.send_order(index,tick,"close",order_id=id)
+
+
+    def tailing_stop(self):
+
+        pass
+
     def set_indicator(self,list_ind):
         set_indicator = []
         for x in list_ind:
-            if x[0] in ["MACD"] :
+            if x[0] in ["MACD","ADX"] :
                 self.graph_row += 1
         self.graph = make_subplots(rows=self.graph_row, cols=1, shared_xaxes=True, vertical_spacing=0.02)
+        count_row = 2
         for x in list_ind:
             if x[0] == "EMA":
                 data = ta.EMA(self.dataset.loc[:,"close"],x[1])
-                set_indicator.append(data)
+                # set_indicator.append(data)
                 self.graph.add_trace(
                     go.Scatter(
                         x = [x for x in range(len(data))],
@@ -237,37 +267,115 @@ class traderFX:
                         name = "EMA" + str(x[1]) 
                     ),col=1 , row = 1
                 )
+                data = np.array(data)
+                data = np.where(np.isnan(data),0,data)
+                data = data.tolist()
+                set_indicator.append(data)
+
+
+            if x[0] == "ADX" :
+                data = ta.ADX(self.dataset.loc[:,"high"],self.dataset.loc[:,"low"],self.dataset.loc[:,"close"],x[1])
+                # set_indicator.append(data)
+                self.graph.add_trace(
+                    go.Scatter(
+                        x=[x for x in range(len(data))],
+                        y = data,
+                        mode = "lines",
+                        name = "ADX" + str(x[1])
+                    ),col=1,row = count_row
+                )
+                data = np.array(data)
+                data = np.where(np.isnan(data),0,data)
+                data = data.tolist()
+                set_indicator.append(data)
+                count_row += 1
+
+            if x[0] == "MACD":
+                macd, macdsignal, macdhist = ta.MACD(self.dataset.loc[:,"close"],x[1],x[2],x[3])
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(macd))],
+                        y = macd,
+                        mode = "lines",
+                        name = "macd"
+                    ),row= count_row,col = 1
+                )
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(macdsignal))],
+                        y = macdsignal,
+                        mode = "lines",
+                        name = "macdsignal"
+                    ),row=count_row,col=1
+                )
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(macdhist))],
+                        y = macdhist,
+                        mode = "lines",
+                        name = "macdsignal"
+                    ),row=count_row,col=1
+                )
+                macd = np.array(macd)
+                macdhist = np.array(macdhist)
+                macdsignal = np.array(macdsignal)
+                macd = np.where(np.isnan(macd),0,macd)
+                macdhist = np.where(np.isnan(macdhist),0,macdhist)
+                macdsignal = np.where(np.isnan(macdsignal),0,macdsignal)
+                macd = macd.tolist()
+                macdhist = macdhist.tolist()
+                macdsignal = macdsignal.tolist()
+                data = []
+                data.append(macd)
+                data.append(macdsignal)
+                data.append(macdhist)
+                set_indicator.append(data)
+                count_row += 1
+            
+            if x[0] == "BB":
+                B_up,B_mindle,B_down = ta.BBANDS(self.dataset.loc[:,"close"],x[1],x[2],x[2],0)
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(B_up))],
+                        y = B_up,
+                        mode = "lines",
+                        name = "B_up"
+                    ),row=1,col=1
+                )
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(B_mindle))],
+                        y = B_mindle,
+                        mode = "lines",
+                        name = "B_mindle"
+                    ),row=1,col=1
+                )
+                self.graph.add_trace(
+                    go.Scatter(
+                        x = [x for x in range(len(B_down))],
+                        y = B_down,
+                        mode = "lines",
+                        name = "B_down"
+                    ),row=1,col=1
+                )
+                B_up = np.array(B_up)
+                B_mindle = np.array(B_mindle)
+                B_down = np.array(B_down)
+                B_up = np.where(np.isnan(B_up),0,B_up)
+                B_mindle = np.where(np.isnan(B_mindle),0,B_mindle)
+                B_down = np.where(np.isnan(B_down),0,B_down)
+                B_up = B_up.tolist()
+                B_mindle = B_mindle.tolist()
+                B_down = B_down.tolist()
+                data = []
+                data.append(B_mindle)
+                data.append(B_up)
+                data.append(B_down)
+                set_indicator.append(data)
+                count_row += 1
         return set_indicator
 ## ================================ test ==================================
 
 
 
-# test = traderFX(balance=200,lot= "micro")
-# test.get_data(currancy="GBPUSD",start_year=2004)
-# # print(test.balance)
-# # print(test.budget)
-# # print(test.spread)
-# # print(test.lot)
-# # print(test.leverage)
-# class test_strategy:
-#     def __init__(self,dataset):
-#         # self.sma12 = ta.SMA(dataset.loc[:,"close"],12)
-#         # self.sma36 = ta.SMA(dataset.loc[:,"close"],36)
-#         list_indicator = test.set_indicator([["EMA",12],["EMA",36]])
-#         self.ema12 = list_indicator[0]
-#         self.ema36 = list_indicator[1]
-#     def next (self,index,tick):
-#         pass
-#         if len(test.order) >= 1:
-#             if test.Crossover(index,self.ema12,self.ema36):
-#                 test.send_order(index,tick,"close",order_id = 0)
-#             if test.Crossover(index,self.ema36,self.ema12):
-#                 test.send_order(index,tick,"close",order_id = 0)
-#         if len(test.order) < 1 :
-#             if test.Crossover(index,self.ema12,self.ema36):
-#                 test.send_order(index,tick,"SELL")
-#             if test.Crossover(index,self.ema36,self.ema12):
-#                 test.send_order(index,tick,"BUY")
-# test.run(test_strategy)
-# # print(test.dataset)
-# # print(test.ready)
+
