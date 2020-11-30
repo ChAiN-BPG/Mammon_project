@@ -9,15 +9,15 @@ environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
-        agent='ac',
+        agent='vpg',
         # Automatically configured network
         network=[
         dict(type='dense', size=10, activation='tanh')
     ],
-        batch_size=5, learning_rate=3e-4,
+        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 1000,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
-        summarizer = dict(directory= 'test/summary_ac'),
-        saver=dict(directory='test/testmodel_saver3', frequency=10, max_checkpoints=20),
+        summarizer = dict(directory= 'test/summary_vpg'),
+        saver=dict(directory='test/testmodel_saver5', frequency=10, max_checkpoints=1000),
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
