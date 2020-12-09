@@ -26,10 +26,9 @@ class ForexEnv_test(gym.Env):
         leverage : (1 : 100)
         sperad   : 0.00022
     """
-    ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
         self.action_space = spaces.Discrete(2) 
-        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32) ## set observation 
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:5]
@@ -45,8 +44,14 @@ class ForexEnv_test(gym.Env):
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
         self.leverage = 100 
         self.sperad = 0.00022
+        ## add margin profit and equity 
+        # self.profit = 0 # if total(unclose_order) < 0 :  
+        self.equity = self.balance # self.balance + sum(unclose_order) 
+        self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
+        self.margin_free = self.balance # self.balance - self.margin
+        self.pre_equity = self.balance
         # the order details
-        self.order_state = None #  1 = buy order , 0 = sell order
+        self.order_state = None #  1 = buy order , 0 = sell order 
         self.order_time = 0
         self.order_price = 0
         self.count_ordered = 0
@@ -74,14 +79,21 @@ class ForexEnv_test(gym.Env):
 
 
         
-    def _calculate_(self,action):
-        profit = 0
-        if self.order_state == None : return profit
+    def _calculate_(self): 
+        ## add profit  // do it
+        outcome = 0
+        if self.order_state == None : 
+            # self.profit = outcome
+            self.equity = outcome + self.budget
+            return outcome
         if self.order_state == 1 :
-            profit = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
-        elif self.order_state == -1 :
-            profit = self.order_price - ((self.close_data + (self.sperad/2)) * self.lot * self.amount) 
-        return profit
+            outcome = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
+        elif self.order_state == 0 :
+            outcome = self.order_price - ((self.close_data + (self.sperad/2)) * self.lot * self.amount) 
+        ## add equity
+        # self.profit = outcome
+        self.equity = outcome + self.budget
+        return outcome
 
 
 
@@ -96,18 +108,23 @@ class ForexEnv_test(gym.Env):
         start_cur = self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
         current_price = start_cur * self.lot * self.amount
         self.order_price = current_price
-        self.order_state = 1 if action == 1 else -1
+        self.order_state = 1 if action == 1 else 0
         self.order_time = self.time_data
         ## collect data // สามารถใส่ info เพื่อออก ไปทำอย่างอื่นได้
         data_time = self.order_time
         data_type = "BUY" if action == 1 else "SELL"
-        data_tick = self.close_data
+        data_tick = start_cur
         data_price = current_price
         data_status = "order"
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
+        ## add margin  
+        self.margin = self.order_price/ self.leverage
+        self.margin_free = self.budget - self.margin
+        _ = self._calculate_()
 
 
     def _close_(self,value):
+        ## add set equity and margin
         if self.order_state == None :
             # self.wrong_move = True
             return
@@ -116,7 +133,7 @@ class ForexEnv_test(gym.Env):
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
         data_price = end_cur * self.lot * self.amount
         data_status = "close"
-        data_tick = self.close_data
+        data_tick = end_cur
         data_time = self.time_data
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
         ## reset 
@@ -129,10 +146,13 @@ class ForexEnv_test(gym.Env):
         else :
             self.profit_order += 1
         self.budget += value
+        self.margin_free = self.budget
+        self.equity = self.budget
+        self.margin = 0
         
 
 
-    def _next_observation (self):
+    def _next_observation (self): ## ปรับ observation เพราะเลขน้อนเกินไป
         """
         all value should be [(-1) - 1] 
 
@@ -157,6 +177,7 @@ class ForexEnv_test(gym.Env):
 
 
     def _reward_(self,action,value):
+        ## add real reward // do it
         reward = 0
     
         ## กรณี เล่นผิด
@@ -192,6 +213,10 @@ class ForexEnv_test(gym.Env):
         episode_over = bool(0)
         # self.wrong_move = False
         ## check can afford order
+
+        # if self.equity <= 0 :
+        #     episode_over = bool(1)
+
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
             episode_over = bool(1)
         if self.tick_data >= self.data_AllTick :
@@ -205,7 +230,7 @@ class ForexEnv_test(gym.Env):
             self.high_data = self.my_data[self.tick_data,2]
             self.low_data = self.my_data[self.tick_data,3]
             self.close_data = self.my_data[self.tick_data,4]
-            outcome = self._calculate_(action)
+            outcome = self._calculate_()
               
             if action != self.order_state :
                 self._close_(outcome)
@@ -213,8 +238,9 @@ class ForexEnv_test(gym.Env):
             obs = self._next_observation()
             # reward = self._reward_(action,outcome)
             # reward = outcome
-            reward = self.balance - self.budget
+            reward = self.equity - self.pre_equity
             self.count_tick += 1
+            self.pre_equity = self.equity
             # self.rew += reward
         return obs , reward , episode_over, {}
         
@@ -238,6 +264,11 @@ class ForexEnv_test(gym.Env):
         self.close_data = 0
         self.high_data = 0
         self.low_data = 0
+        ## add reset margin profit and equity
+        self.margin = 0
+        self.margin_free = self.balance
+        self.profit = 0
+        self.equity = self.balance
 
         # self.rew = 0
         return self._next_observation()
