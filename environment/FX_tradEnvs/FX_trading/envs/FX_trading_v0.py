@@ -73,7 +73,8 @@ class ForexEnv_test(gym.Env):
         # data collector
         self.all_order = []
         ## test
-        # self.rew = 0
+        self.test = bool(0)
+        self.transition = []
 
 
 
@@ -120,7 +121,7 @@ class ForexEnv_test(gym.Env):
         ## add margin  
         self.margin = self.order_price/ self.leverage
         self.margin_free = self.budget - self.margin
-        _ = self._calculate_()
+        # _ = self._calculate_()
 
 
     def _close_(self,value):
@@ -185,16 +186,17 @@ class ForexEnv_test(gym.Env):
         #     return (-10000)
 
         ## กรณี ยังไม่order
-        Longterm = 0
+        # Longterm = 0
         # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
-        Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
+        # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
         
         ## กรณี order แล้ว
-        Shortterm = 0 
+        # Shortterm = 0 
         # if self.order_state != None :
         #     Shortterm +=  (value + 1) * 10 ##  เปิด order 
-        reward = Longterm + Shortterm
-
+        # reward = Longterm + Shortterm
+        reward = self.equity - self.pre_equity
+        self.transition.append([reward,self.equity])
         ## กรณีที่ปิดถูก
         
         return reward
@@ -236,9 +238,9 @@ class ForexEnv_test(gym.Env):
                 self._close_(outcome)
                 self._order_(action)
             obs = self._next_observation()
-            # reward = self._reward_(action,outcome)
+            reward = self._reward_(action,outcome)
             # reward = outcome
-            reward = self.equity - self.pre_equity
+            # reward = self.equity - self.pre_equity
             self.count_tick += 1
             self.pre_equity = self.equity
             # self.rew += reward
