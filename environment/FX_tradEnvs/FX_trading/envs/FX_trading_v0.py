@@ -67,9 +67,21 @@ class ForexEnv_test(gym.Env):
         self.loss_order = 0 
         # data collector
         self.all_order = []
+<<<<<<< Updated upstream
         
 
 
+=======
+        ## test
+        # self.rew = 0
+        # data for collect trnsection
+        self.test = False ## set out put  
+        self.test_count = 0
+        self.reward_per_ep = 0
+        self.reward_per_ts = 0
+        self.list_reward = []
+        self.list_allreward = []
+>>>>>>> Stashed changes
 
 
         
@@ -192,6 +204,8 @@ class ForexEnv_test(gym.Env):
         # self.wrong_move = False
         ## check can afford order
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
+            if self.tick_data < 1000 : 
+                print("WTF")
             episode_over = bool(1)
         if self.tick_data >= self.data_AllTick :
             episode_over = bool(1)
@@ -211,9 +225,20 @@ class ForexEnv_test(gym.Env):
                 outcome = 0
                 self._order_(action)
             obs = self._next_observation()
+<<<<<<< Updated upstream
             reward = self._reward_(action,outcome)
             self.count_tick += 1
             
+=======
+            # reward = self._reward_(action,outcome)
+            # reward = outcome
+            reward = self.budget - self.balance
+            self.count_tick += 1
+            # self.rew += reward
+            if self.test :
+                output_data = [self.tick_data,obs,reward,episode_over]
+                self.list_reward.append(output_data)
+>>>>>>> Stashed changes
         return obs , reward , episode_over, {}
         
 
@@ -221,6 +246,12 @@ class ForexEnv_test(gym.Env):
 
 
     def reset(self):
+        if self.test :
+            df = pd.DataFrame(data=self.list_reward)
+            path = "test/extest" + str(self.test_count) + ".xlsx"
+            self.list_reward = []
+            df.to_excel(path)
+            self.test_count += 1
         self.count_tick = 0
         self.balance = 200
         self.budget = self.balance

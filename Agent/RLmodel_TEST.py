@@ -8,19 +8,32 @@ import FX_trading
 environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 agent = dict(
         
+<<<<<<< Updated upstream
         agent='ac',
+=======
+        agent='dqn',
+>>>>>>> Stashed changes
         # Automatically configured network
         network='auto',
         batch_size=1, update_frequency=2, learning_rate=3e-4,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
+<<<<<<< Updated upstream
         summarizer = dict(directory= 'test/summaries'),
         saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=20),
+=======
+        summarizer = dict(directory= 'test/summary_dqn'),
+        saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=1000),
+>>>>>>> Stashed changes
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
+<<<<<<< Updated upstream
 runner.run(num_episodes=1000)
+=======
+runner.run(num_episodes=1500)
+>>>>>>> Stashed changes
 runner.close()
 # agent = Agent.load(directory='model', format='checkpoint')
 
