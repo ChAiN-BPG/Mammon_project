@@ -9,6 +9,7 @@ environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 agent = dict(
         
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         agent='ac',
 =======
         agent='dqn',
@@ -24,15 +25,32 @@ agent = dict(
         summarizer = dict(directory= 'test/summary_dqn'),
         saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=1000),
 >>>>>>> Stashed changes
+=======
+        agent='ppo',
+        # Automatically configured network
+        network=[
+        dict(type='dense', size=10, activation='tanh'),
+        dict(type='dense', size=20, activation='tanh'),
+        dict(type='dense', size=10, activation='tanh')
+    ],
+        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 1000,
+        # Save agent every 10 updates and keep the 5 most recent checkpoints
+        summarizer = dict(directory= 'test/summary'),
+        saver=dict(directory='test/testmodel_saver', frequency=10, max_checkpoints=1000),
+>>>>>>> Stashed changes
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 runner.run(num_episodes=1000)
 =======
 runner.run(num_episodes=1500)
+>>>>>>> Stashed changes
+=======
+runner.run(num_episodes=1000)
 >>>>>>> Stashed changes
 runner.close()
 # agent = Agent.load(directory='model', format='checkpoint')

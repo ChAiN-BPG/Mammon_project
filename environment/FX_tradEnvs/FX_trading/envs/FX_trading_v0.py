@@ -116,6 +116,13 @@ class ForexEnv_test(gym.Env):
         data_price = current_price
         data_status = "order"
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
+<<<<<<< Updated upstream
+=======
+        ## add margin  
+        self.margin = self.order_price/ self.leverage
+        self.margin_free = self.budget - self.margin
+        # _ = self._calculate_()
+>>>>>>> Stashed changes
 
 
     def _close_(self,value):
