@@ -8,15 +8,16 @@ import pandas as pd
 import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
 
-class ForexEnv_test2(gym.Env):
+class ForexEnv(gym.Env):
     """
     this is environment for reinforcement learning. This environment is about that simulation for forex trading which can trade only 1 per any time.
 
     init data for gym : 
         action space : 
-            BUY(0) : order buy 
-            SELL(1) : order sell 
-            
+            Hold(0) : do nothing 
+            BUY(1) : order buy 
+            SELL(2) : order sell 
+            CLOSE(3): close all of order 
             
         observation space : 
     init data for trading :
@@ -26,32 +27,54 @@ class ForexEnv_test2(gym.Env):
         leverage : (1 : 100)
         sperad   : 0.00022
     """
-    def __init__(self,dataset):
-        self.action_space = spaces.Discrete(2) 
-        self.observation_space = spaces.Box(low= 0, high=np.inf, shape=(4,), dtype=np.float32) ## set observation 
+    ## this emvirpnment has no spread and magin calculate // todo
+    def __init__(self,dataset='data/Timeframe_data/2004/GBPUSD-2004_H1.xlsx'):
+        self.action_space = spaces.Discrete(4) 
+        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(15,), dtype=np.float32)
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:5]
         df_data.columns = ['time','open','high','low','close']
-        self.my_data = df_data.to_numpy()
+        ##  ================ add indicator ==================== 
+        macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
+        aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
+        ## ====================================================
+        data = {
+            'time' : df_data['time'],
+            'open' : df_data['open'],
+            'high' : df_data['high'],
+            'low'  : df_data['low'],
+            'close' : df_data['close'],
+            'macd' : macd,
+            'macdsignal':macdsignal,
+            'macdhist':  macdhist, 
+            'ATR' : ATR , 
+            'slowk' : slowk, 
+            'slowd' : slowd, 
+            'WILL' : WILL,
+            'SAR' : SAR,
+            'aroondown' : aroondown,
+            'aroonup' : aroonup
+            }
+        all_data = pd.DataFrame(data= data)
+        all_data =  all_data.dropna()
+        self.my_data = all_data.to_numpy()
         self.data_AllTick = len(self.my_data)
         self.data_column = len(self.my_data[0])
         self.count_tick = 0
         # init base for trading
-        self.balance = 200 # 200
+        self.balance = 200
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
         self.leverage = 100 
         self.sperad = 0.00022
-        ## add margin profit and equity 
-        # self.profit = 0 # if total(unclose_order) < 0 :  
-        self.equity = self.balance # self.balance + sum(unclose_order) 
-        self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
-        self.margin_free = self.balance # self.balance - self.margin
-        self.pre_equity = self.balance
         # the order details
-        self.order_state = None #  1 = buy order , 0 = sell order 
+        self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_time = 0
         self.order_price = 0
         self.count_ordered = 0
@@ -64,37 +87,28 @@ class ForexEnv_test2(gym.Env):
         self.low_data = 0
         self.wrong_move = False
         # normalize data
-        # scaler = MinMaxScaler(feature_range=(-1,1))
-        # scaler.fit(self.my_data[:,1:15])
-        # self.encoder = scaler
+        scaler = MinMaxScaler(feature_range=(-1,1))
+        scaler.fit(self.my_data[:,1:15])
+        self.encoder = scaler
         # render data
         self.profit_order = 0
         self.loss_order = 0 
         # data collector
         self.all_order = []
-        ## test
-        self.test = bool(0)
-        self.transition = []
+        
 
 
 
 
         
-    def _calculate_(self): 
-        ## add profit  // do it
-        outcome = 0
-        if self.order_state == None : 
-            # self.profit = outcome
-            self.equity = outcome + self.budget
-            return outcome
+    def _calculate_(self,action):
+        profit = 0
+        if self.order_state == 0 : return profit
         if self.order_state == 1 :
-            outcome = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
-        elif self.order_state == 0 :
-            outcome = self.order_price - ((self.close_data + (self.sperad/2)) * self.lot * self.amount) 
-        ## add equity
-        # self.profit = outcome
-        self.equity = outcome + self.budget
-        return outcome
+            profit = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
+        elif self.order_state == 2 :
+            profit = self.order_price - ((self.close_data + (self.sperad/2)) * self.lot * self.amount) 
+        return profit
 
 
 
@@ -103,42 +117,37 @@ class ForexEnv_test2(gym.Env):
 
 
     def _order_(self,action):
-        if self.order_state != None : 
-            # self.wrong_move = True
+        if self.order_state != 0 : 
+            self.wrong_move = True
             return
         start_cur = self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
         current_price = start_cur * self.lot * self.amount
         self.order_price = current_price
-        self.order_state = 1 if action == 1 else 0
+        self.order_state = action
         self.order_time = self.time_data
         ## collect data // สามารถใส่ info เพื่อออก ไปทำอย่างอื่นได้
         data_time = self.order_time
         data_type = "BUY" if action == 1 else "SELL"
-        data_tick = start_cur
+        data_tick = self.close_data
         data_price = current_price
         data_status = "order"
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
-        ## add margin  
-        self.margin = self.order_price/ self.leverage
-        self.margin_free = self.budget - self.margin
-        # _ = self._calculate_()
 
 
     def _close_(self,value):
-        ## add set equity and margin
-        if self.order_state == None :
-            # self.wrong_move = True
+        if self.order_state == 0 :
+            self.wrong_move = True
             return
         ## collect data
         data_type  = "BUY" if self.order_state == 1 else "SELL"
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
         data_price = end_cur * self.lot * self.amount
         data_status = "close"
-        data_tick = end_cur
+        data_tick = self.close_data
         data_time = self.time_data
         self.all_order.append([data_time,data_status,data_type,data_tick,data_price])
         ## reset 
-        self.order_state = None
+        self.order_state = 0 
         self.order_time = 0
         self.order_price = 0
         self.count_ordered += 1
@@ -147,64 +156,46 @@ class ForexEnv_test2(gym.Env):
         else :
             self.profit_order += 1
         self.budget += value
-        self.margin_free = self.budget
-        self.equity = self.budget
-        self.margin = 0
         
 
 
-    def _next_observation (self): ## ปรับ observation เพราะเลขน้อนเกินไป
+    def _next_observation (self):
         """
         all value should be [(-1) - 1] 
 
         observation = [data(t),order_state,order_price]
         """
-        # if self.tick_data < 2 :
-        #     data = self.my_data[self.tick_data,1:]
-        #     data = np.array([data,data,data])
-        # else :
-        #     data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
-        # obs_data = self.encoder.transform(data) 
-        # obs_data = obs_data.flatten()
-
-        ## ========= set one candle ===============
-        data = self.my_data[self.tick_data,1:]
-        data = np.array(data)
-        obs_data = data
+        data = self.my_data[self.tick_data,1:15]
+        obs_data = self.encoder.transform([data]) 
         obs_data = obs_data.flatten()
-        # out = 0
-        # if self.order_state == 2: out = -1
-        # elif self.order_state == 1 : out = 1
-        # obs = np.append(obs_data,out) ## ใส่ indicator ด้วยยยยย // done
+        out = 0
+        if self.order_state == 2: out = -1
+        elif self.order_state == 1 : out = 1
+        obs = np.append(obs_data,out) ## ใส่ indicator ด้วยยยยย // done
         self.tick_data += 1
-        return obs_data
+        return obs
         
 
 
 
 
     def _reward_(self,action,value):
-        ## add real reward // do it
         reward = 0
     
         ## กรณี เล่นผิด
-        # if self.wrong_move :
-        #     return (-10000)
+        if self.wrong_move :
+            return (-10000)
 
         ## กรณี ยังไม่order
-        # Longterm = 0
-        # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
-        # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
+        Longterm = 0
+        Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
+        Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
         
         ## กรณี order แล้ว
-        # Shortterm = 0 
-        # if self.order_state != None :
-        #     Shortterm +=  (value + 1) * 10 ##  เปิด order 
-        # reward = Longterm + Shortterm
-        reward = self.equity - self.pre_equity
-        self.transition.append([reward,self.equity])
-        ## กรณีที่ปิดถูก
-        
+        Shortterm = 0 
+        if self.order_state > 0 :
+            Shortterm +=  (value + 1) * 100 ##  เปิด order 
+        reward = Longterm + Shortterm
         return reward
     
 
@@ -219,12 +210,8 @@ class ForexEnv_test2(gym.Env):
                 - create observation that include state and reward
         """
         episode_over = bool(0)
-        # self.wrong_move = False
+        self.wrong_move = False
         ## check can afford order
-
-        # if self.equity <= 0 :
-        #     episode_over = bool(1)
-
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
             episode_over = bool(1)
         if self.tick_data >= self.data_AllTick :
@@ -238,18 +225,16 @@ class ForexEnv_test2(gym.Env):
             self.high_data = self.my_data[self.tick_data,2]
             self.low_data = self.my_data[self.tick_data,3]
             self.close_data = self.my_data[self.tick_data,4]
-            outcome = self._calculate_()
+            outcome = self._calculate_(action)
               
-            if action != self.order_state :
+            if action == 3 :
                 self._close_(outcome)
+            elif action != 0 :
                 self._order_(action)
             obs = self._next_observation()
             reward = self._reward_(action,outcome)
-            # reward = outcome
-            # reward = self.equity - self.pre_equity
             self.count_tick += 1
-            self.pre_equity = self.equity
-            # self.rew += reward
+            
         return obs , reward , episode_over, {}
         
 
@@ -260,7 +245,7 @@ class ForexEnv_test2(gym.Env):
         self.count_tick = 0
         self.balance = 200
         self.budget = self.balance
-        self.order_state = None # 0 = nop , 1 = buy order , 2 = sell order
+        self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_time = 0
         self.order_price = 0
         self.profit_order = 0
@@ -272,13 +257,6 @@ class ForexEnv_test2(gym.Env):
         self.close_data = 0
         self.high_data = 0
         self.low_data = 0
-        ## add reset margin profit and equity
-        self.margin = 0
-        self.margin_free = self.balance
-        self.profit = 0
-        self.equity = self.balance
-
-        # self.rew = 0
         return self._next_observation()
 
 
@@ -367,3 +345,10 @@ class ForexEnv_test2(gym.Env):
         )
         fig_data.update_layout(xaxis_rangeslider_visible=False)
         fig_data.show()
+
+
+        
+
+
+
+

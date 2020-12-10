@@ -166,6 +166,12 @@ class ForexEnv_test(gym.Env):
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
         obs_data = self.encoder.transform(data) 
         obs_data = obs_data.flatten()
+
+        ## ========= set one candle ===============
+        # data = self.my_data[self.tick_data,1:]
+        # data = np.array(data)
+        # obs_data = data
+        
         # out = 0
         # if self.order_state == 2: out = -1
         # elif self.order_state == 1 : out = 1
