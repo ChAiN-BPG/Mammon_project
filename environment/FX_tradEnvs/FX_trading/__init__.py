@@ -7,6 +7,11 @@ register(
 )
 register(
     id='FXTrading-v1',
+    entry_point='FX_trading.envs:ForexEnv_test2',
+    kwargs={'dataset': 'data/Test_data/sin_dataset.xlsx'}
+)
+register(
+    id='FXTrading-v2',
     entry_point='FX_trading.envs:ForexEnv',
     kwargs={'dataset': 'data/TimeFrame/2004/GBPUSD-2004_H1.xlsx'}
 )

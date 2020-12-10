@@ -23,7 +23,7 @@ answer = [1]
 Answer.extend(answer)
 print(len(Answer))
 
-env = gym.make('FXTrading-v0')
+env = gym.make('FXTrading-v1')
 # env.reset()
 for index in range(1000):
     env.render()
