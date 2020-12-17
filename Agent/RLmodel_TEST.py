@@ -23,7 +23,7 @@ agent = dict(
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
-runner.run(num_episodes=500)
+runner.run(num_episodes=200)
 runner.close()
 
 
