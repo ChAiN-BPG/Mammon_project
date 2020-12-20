@@ -2,6 +2,7 @@ import gym
 import FX_trading
 import pandas as pd 
 import  numpy as np 
+from tensorforce import Agent
 
 data = pd.read_excel('data/Test_data/sin_dataset.xlsx', header=None)
 data1 = data.iloc[:len(data)-1,4]
