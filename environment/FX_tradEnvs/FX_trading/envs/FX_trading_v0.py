@@ -28,7 +28,8 @@ class ForexEnv_test(gym.Env):
     """
     def __init__(self,dataset):
         self.action_space = spaces.Discrete(2) 
-        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32) ## set observation 
+        # self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32) ## set observation 
+        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(12,), dtype=np.float32)
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:5]
@@ -64,9 +65,9 @@ class ForexEnv_test(gym.Env):
         self.low_data = 0
         self.wrong_move = False
         # normalize data
-        scaler = MinMaxScaler(feature_range=(-1,1))
-        scaler.fit(self.my_data[:,1:15])
-        self.encoder = scaler
+        # scaler = MinMaxScaler(feature_range=(-1,1))
+        # scaler.fit(self.my_data[:,1:15])
+        # self.encoder = scaler
         # render data
         self.profit_order = 0
         self.loss_order = 0 
@@ -164,7 +165,8 @@ class ForexEnv_test(gym.Env):
             data = np.array([data,data,data])
         else :
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
-        obs_data = self.encoder.transform(data) 
+        # obs_data = self.encoder.transform(data) 
+        obs_data = data
         obs_data = obs_data.flatten()
 
         ## ========= set one candle ===============
