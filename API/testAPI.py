@@ -11,3 +11,27 @@ print(mt5.account_info())
 print("wait you litle shit")
 print(mt5.symbols_total())
 print(mt5.symbol_info("GBPUSD"))
+# selected=mt5.symbol_select("GBPUSD",True)
+# if not selected:
+#     print("Failed to select GBPUSD")
+#     mt5.shutdown()
+#     quit()
+# lasttick=mt5.symbol_info_tick("GBPUSD")
+# print(lasttick)
+# # display tick field values in the form of a list
+# print("Show symbol_info_tick(\"GBPUSD\")._asdict():")
+# symbol_info_tick_dict = mt5.symbol_info_tick("GBPUSD")._asdict()
+# for prop in symbol_info_tick_dict:
+#     print("  {}={}".format(prop, symbol_info_tick_dict[prop]))
+
+
+## send order 
+
+
+
+## show all order 
+orders=mt5.orders_total()
+if orders>0:
+    print("Total orders=",orders)
+else:
+    print("Orders not found")
