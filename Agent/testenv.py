@@ -2,6 +2,7 @@ import gym
 import FX_trading
 import pandas as pd 
 import  numpy as np 
+from tensorforce import Agent
 import datetime
 
 import plotly.graph_objects as go

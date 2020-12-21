@@ -201,7 +201,8 @@ class ForexEnv_test2(gym.Env):
         # if self.order_state != None :
         #     Shortterm +=  (value + 1) * 10 ##  เปิด order 
         # reward = Longterm + Shortterm
-        reward = self.equity - self.pre_equity
+        reward =  self.budget - self.balance 
+        # reward = self.equity - self.pre_equity
         self.transition.append([reward,self.equity])
         ## กรณีที่ปิดถูก
         
