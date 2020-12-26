@@ -28,12 +28,19 @@ class ForexEnv_test(gym.Env):
     """
     def __init__(self,dataset):
         self.action_space = spaces.Discrete(2) 
-        # self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32) ## set observation 
-        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(12,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=float(-1.0), high=float(1.0), shape=(12,), dtype=np.float32) ## set observation 
+        # self.observation_space = spaces.Box(low=0, high=np.inf, shape=(12,), dtype=np.float32)
         # init dataset 
-        df_data = pd.read_excel(dataset,header=None)
-        df_data = df_data.iloc[:,0:5]
-        df_data.columns = ['time','open','high','low','close']
+        if dataset == "data/dataset/XM_EURUSD-2011_H1.xlsx" :
+            df_data = pd.read_excel(dataset,header=None)
+            df_data = df_data.iloc[:,2:6]
+            df_data.columns = ['open','high','low','close']
+            timee = [x for x in range (len(df_data))]
+            df_data.insert(0, "time", timee, True) 
+        else :
+            df_data = pd.read_excel(dataset,header=None)
+            df_data = df_data.iloc[:,0:5]
+            df_data.columns = ['time','open','high','low','close']
         self.my_data = df_data.to_numpy()
         self.data_AllTick = len(self.my_data)
         self.data_column = len(self.my_data[0])
@@ -65,15 +72,16 @@ class ForexEnv_test(gym.Env):
         self.low_data = 0
         self.wrong_move = False
         # normalize data
-        # scaler = MinMaxScaler(feature_range=(-1,1))
-        # scaler.fit(self.my_data[:,1:15])
-        # self.encoder = scaler
+        scaler = MinMaxScaler(feature_range=(-1,1))
+        scaler.fit(self.my_data[:,1:15])
+        self.encoder = scaler
         # render data
         self.profit_order = 0
         self.loss_order = 0 
         # data collector
         self.all_order = []
         ## test
+        self.charge_state = False
         self.test = bool(0)
         self.transition = []
 
@@ -108,6 +116,7 @@ class ForexEnv_test(gym.Env):
             # self.wrong_move = True
             return
         start_cur = self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
+        self.charge_state = True
         current_price = start_cur * self.lot * self.amount
         self.order_price = current_price
         self.order_state = 1 if action == 1 else 0
@@ -131,6 +140,7 @@ class ForexEnv_test(gym.Env):
             # self.wrong_move = True
             return
         ## collect data
+        self.charge_state = True
         data_type  = "BUY" if self.order_state == 1 else "SELL"
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
         data_price = end_cur * self.lot * self.amount
@@ -165,8 +175,8 @@ class ForexEnv_test(gym.Env):
             data = np.array([data,data,data])
         else :
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,1:15]
-        # obs_data = self.encoder.transform(data) 
-        obs_data = data
+        obs_data = self.encoder.transform(data) 
+        # obs_data = data
         obs_data = obs_data.flatten()
 
         ## ========= set one candle ===============
@@ -197,14 +207,21 @@ class ForexEnv_test(gym.Env):
         # Longterm = 0
         # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
         # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
-        
+        # if self.order_state == 1 :
+        #     reward = (self.budget - self.balance)
+        # else :
+        #     pass
         ## กรณี order แล้ว
         # Shortterm = 0 
         # if self.order_state != None :
         #     Shortterm +=  (value + 1) * 10 ##  เปิด order 
         # reward = Longterm + Shortterm
         # reward = self.equity - self.pre_equity
-        reward =  self.budget - self.balance 
+
+        reward =  (self.budget - self.balance) 
+        # if self.charge_state :
+        #     reward += 10
+        #     self.charge_state = False
         self.transition.append([reward,self.equity])
         ## กรณีที่ปิดถูก
         
@@ -260,6 +277,9 @@ class ForexEnv_test(gym.Env):
 
 
     def reset(self):
+        #### out ####
+        self.render()
+        #####
         self.count_tick = 0
         self.balance = 200
         self.budget = self.balance
