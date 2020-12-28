@@ -88,6 +88,7 @@ class ForexEnv(gym.Env):
         self.order_price = 0
         self.count_ordered = 0
         # currancy data
+        self.night = 0
         self.tick_data = 0
         self.date_data = 0
         self.open_data = 0
@@ -117,6 +118,8 @@ class ForexEnv(gym.Env):
             outcome = ((self.close_data - (self.sperad/2)) * self.lot * self.amount) - self.order_price
         elif self.order_state == -1 :
             outcome = self.order_price - ((self.close_data + (self.sperad/2)) * self.lot * self.amount) 
+        if self.date_data.hour == 4 :
+            self.night += 1
         self.equity = outcome + self.budget
         return outcome
 
@@ -155,6 +158,7 @@ class ForexEnv(gym.Env):
         data_type  = "BUY" if self.order_state == 1 else "SELL"
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
         data_price = end_cur * self.lot * self.amount
+        data_price = data_price + (self.night * self.swap_long) if self.order_state == 1 else data_price + (self.night * self.swap_short)
         data_status = "close"
         data_tick = self.close_data
         data_date = self.date_data
@@ -171,6 +175,7 @@ class ForexEnv(gym.Env):
         self.margin_free = self.budget
         self.equity = self.budget
         self.margin = 0
+        self.night = 0
         
 
 
