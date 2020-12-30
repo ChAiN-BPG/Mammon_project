@@ -68,6 +68,12 @@ class ForexEnv(gym.Env):
         self.data_AllTick = len(self.my_data)
         self.data_column = len(self.my_data[0])
         self.count_tick = 0
+        ## set datetime 
+        for x in range(self.data_AllTick):
+            date = self.my_data[x,0].split('.')
+            time = self.my_data[x,1].split(':')
+            self.my_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+            # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
         self.balance = 200
         self.budget = self.balance
@@ -192,6 +198,7 @@ class ForexEnv(gym.Env):
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,2:]
         # obs_data = self.encoder.transform(data) 
         obs_data = data.flatten()
+        obs_data = obs_data.astype('float32')
         # out = 0
         # if self.order_state == 2: out = -1
         # elif self.order_state == 1 : out = 1
@@ -248,10 +255,14 @@ class ForexEnv(gym.Env):
             # Date = date.iloc[0].split('.')
 # time = date.iloc[1].split(':')
 # asss = datetime.datetime(int(Date[0]),int(Date[1]),int(Date[2]),int(time[0]),int(time[1]))
-            date = self.my_data[self.tick_data,0].split('.')
-            time = self.my_data[self.tick_data,1].split(':')
-            self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
-            self.my_data[self.tick_data,0] = self.date_data
+            # date = self.my_data[self.tick_data,0].split('.')
+            # date = self.my_data[self.tick_data,0]
+            # date = date.split('.')
+            # time = self.my_data[self.tick_data,1].split(':')
+            # self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+            # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
+            # self.my_data[self.tick_data,0] = self.date_data
+            self.date_data = self.my_data[self.tick_data,0]
             self.open_data = self.my_data[self.tick_data,2]
             self.high_data = self.my_data[self.tick_data,3]
             self.low_data = self.my_data[self.tick_data,4]
