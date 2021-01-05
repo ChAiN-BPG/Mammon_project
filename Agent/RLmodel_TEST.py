@@ -13,12 +13,12 @@ agent = dict(
         # Automatically configured network
         network=[
         # dict(type='gru', size=20,horizon = 1)
-        dict(type='dense', size=20, activation='tanh')
-        # dict(type='dense',size=25, activation='tanh'),
-        # dict(type='dense',size=50, activation='tanh'),
-        # dict(type='dense',size=50, activation='tanh'),
-        # dict(type='dense',size=50, activation='tanh'),
-        # dict(type='dense',size=25, activation='tanh')
+        # dict(type='dense', size=20, activation='tanh')
+        dict(type='dense',size=25, activation='tanh'),
+        dict(type='dense',size=50, activation='tanh'),
+        dict(type='dense',size=50, activation='tanh'),
+        dict(type='dense',size=50, activation='tanh'),
+        dict(type='dense',size=25, activation='tanh')
         # dict(type='dense',size=10, activation='sigmoid')
         # dict(type='lstm', size=10,horizon = 1)
     ],

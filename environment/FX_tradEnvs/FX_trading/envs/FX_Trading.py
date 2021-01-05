@@ -339,16 +339,28 @@ class ForexEnv(gym.Env):
 
 
     def plot_data(self,):
+        df_order = pd.DataFrame(data= self.all_order)
+        df_order.columns = ['data_time','data_status','data_type','data_tick','data_price']
         try:
-            df_order = pd.DataFrame(data= self.all_order)
-            df_order.columns = ['data_time','data_status','data_type','data_tick','data_price']
             sell_order = df_order.groupby('data_type').get_group('SELL')
+        except:
+            sell_order = []
+        try:
             buy_order = df_order.groupby('data_type').get_group('BUY')
+        except:
+            buy_order = []
+        try:
             sell_ordered = sell_order.groupby('data_status').get_group("order")
             sell_closed = sell_order.groupby('data_status').get_group("close")
+        except:
+            sell_closed = []
+            sell_ordered = []
+        try:
             buy_ordered = buy_order.groupby('data_status').get_group("order")
             buy_closed = buy_order.groupby('data_status').get_group("close")
-        except: print("An exception occurred")
+        except:
+            buy_closed = []
+            buy_ordered = []
         fig_data = go.Figure()
         fig_data.add_trace(
             go.Candlestick(x=self.my_data[:,0],
