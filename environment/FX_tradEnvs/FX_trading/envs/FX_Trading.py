@@ -30,7 +30,7 @@ class ForexEnv(gym.Env):
     """
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
-        self.action_space = spaces.Discrete(4) 
+        self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=0, high=np.inf, shape=(12,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
@@ -156,10 +156,13 @@ class ForexEnv(gym.Env):
 
 
 
-    def _close_(self,value):
+    def _close_(self,value,action):
+        action = 1 if action ==1 else -1
         if self.order_state == 0 :
             self.wrong_move = True
             return
+        if action == self.order_state :
+            self.wrong_move = True
         ## collect data
         data_type  = "BUY" if self.order_state == 1 else "SELL"
         end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
@@ -196,7 +199,14 @@ class ForexEnv(gym.Env):
             data = np.array([data,data,data])
         else :
             data = self.my_data[self.tick_data - 2 :self.tick_data + 1,2:]
+        
+
+        ## ========= set one candle ===============
+        # data = self.my_data[self.tick_data,2:]
+        # data = np.array(data)
+        # obs_data = data
         # obs_data = self.encoder.transform(data) 
+
         obs_data = data.flatten()
         obs_data = obs_data.astype('float32')
         # out = 0
@@ -221,8 +231,8 @@ class ForexEnv(gym.Env):
         Longterm = 0
         # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
         # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
-        Longterm = self.pre_equity - self.equity
-        
+        # Longterm = self.pre_equity - self.equity
+        Longterm = self.equity - self.pre_equity
         ## กรณี order แล้ว
         Shortterm = 0 
         # if self.order_state > 0 :
@@ -270,10 +280,10 @@ class ForexEnv(gym.Env):
             outcome = self._calculate_(action)
             if action == 0:
                 pass
-            elif action == 3 :
-                self._close_(outcome)
+            # elif action == 3 :
+            #     self._close_(outcome)
             elif self.order_state != 0 : 
-                self._close_(outcome)
+                self._close_(outcome,action)
                 self._order_(action)
             else:
                 self._order_(action)

@@ -53,11 +53,11 @@ fig_data.add_trace(
     close=close_data)
 )
 
-# fig_data.add_trace(
-#     go.Scatter(x=x,
-#     y = y,
-#     mode = 'lines')
-# )
+fig_data.add_trace(
+    go.Scatter(x=x,
+    y = ta.EMA(close_data,14),
+    mode = 'lines')
+)
 
 fig_data.update_layout(xaxis_rangeslider_visible=False)
 fig_data.show()
