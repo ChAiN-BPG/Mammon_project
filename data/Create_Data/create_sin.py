@@ -22,15 +22,16 @@ import numpy as np
 # y = y + 2.5
 
 x = np.arange(0.05,1.051,0.001)
-y = np.sin(20*np.pi*x) 
-y = np.round(y,10)
-y = y + 2.5
+y = np.sin(10*np.pi*x) 
+y = (y)/1000 + 0.005
+y = np.round(y,5)
+
 
 
 open_data = (y[:(len(y))-1])
 close_data = (y[1:])
-high_data = (y[1:] + 0.5 )
-low_data = (y[1:] - 0.5  )
+high_data = (y[1:] + 0.0001 )
+low_data = (y[1:] - 0.0001  )
 x = [i for i in range(len(x))]
 data = {
     "time"        : x[:(len(x)-1)] ,
@@ -40,7 +41,7 @@ data = {
     "close price" : close_data
 }
 new_dataset = pd.DataFrame(data)
-new_dataset.to_excel("data/Test_data/sin_dataset7.xlsx",header=None,index=None)
+# new_dataset.to_excel("data/Test_data/sin_dataset7.xlsx",header=None,index=None)
 # print(new_dataset)
 fig_data = go.Figure()
 
@@ -52,11 +53,11 @@ fig_data.add_trace(
     close=close_data)
 )
 
-# fig_data.add_trace(
-#     go.Scatter(x=x,
-#     y = y,
-#     mode = 'lines')
-# )
+fig_data.add_trace(
+    go.Scatter(x=x,
+    y = ta.EMA(close_data,14),
+    mode = 'lines')
+)
 
 fig_data.update_layout(xaxis_rangeslider_visible=False)
 fig_data.show()

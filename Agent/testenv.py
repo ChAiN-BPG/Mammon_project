@@ -38,48 +38,48 @@ def ZigZagPoints(dfSeries, minSegSize=2):
     return(answer)
 
 ### for create answer ###
-# data = pd.read_excel('data/Test_data/sin_dataset.xlsx', header=None)
-# date = data.iloc[0,:2]
-# data= data.iloc[:,1:]
-# print(data)
-# Answer = ZigZagPoints(data,0.15)
-# Answer = Answer.to_numpy()
-# Answer = Answer.flatten()
+data = pd.read_excel('data/dataset/XM_EURUSD-2011_H1.xlsx', header=None)
+date = data.iloc[0,:2]
+data= data.iloc[:,2:]
+print(data)
+Answer = ZigZagPoints(data,0.05)
+Answer = Answer.to_numpy()
+Answer = Answer.flatten()
 ########################
 
-data = pd.read_excel('data/Test_data/sin_dataset.xlsx', header=None)
-data1 = data.iloc[:len(data)-1,4]
-data2 = data.iloc[1:,4]
-data1 = np.array(data1)
-data2 = np.array(data2)
-answer = data1 - data2
-# print(data1)
-# print(data2)
-Answer = []
-for x in answer :
-    if x > 0:
-        Answer.append(0)
-    else:
-        Answer.append(1)
-print(len(Answer))
-answer = [1]
-# answer.extend(Answer)
-Answer.extend(answer)
-print(len(Answer))
-AA = []
-for x in range (len(Answer)) :
-    if x == 0 :
-        out = 1 if Answer[x] == 1 else 2
-        AA.append(out)
-    elif Answer[x-1] == 1 and Answer[x] == 0:
-        AA.append(2)
-    elif Answer[x-1] == 0 and Answer[x] == 1:
-        AA.append(1)
-    else :
-        AA.append(0)
-Answer = AA
+# data = pd.read_excel('data/Test_data/sin_dataset.xlsx', header=None)
+# data1 = data.iloc[:len(data)-1,4]
+# data2 = data.iloc[1:,4]
+# data1 = np.array(data1)
+# data2 = np.array(data2)
+# answer = data1 - data2
+# # print(data1)
+# # print(data2)
+# Answer = []
+# for x in answer :
+#     if x > 0:
+#         Answer.append(0)
+#     else:
+#         Answer.append(1)
+# print(len(Answer))
+# answer = [1]
+# # answer.extend(Answer)
+# Answer.extend(answer)
+# print(len(Answer))
+# AA = []
+# for x in range (len(Answer)) :
+#     if x == 0 :
+#         out = 1 if Answer[x] == 1 else 2
+#         AA.append(out)
+#     elif Answer[x-1] == 1 and Answer[x] == 0:
+#         AA.append(2)
+#     elif Answer[x-1] == 0 and Answer[x] == 1:
+#         AA.append(1)
+#     else :
+#         AA.append(0)
+# Answer = AA
 
-env = gym.make('FXTrading-v1')
+env = gym.make('FXTrading-v99')
 # env.reset()
 for index in range(len(data)):
     env.render()
