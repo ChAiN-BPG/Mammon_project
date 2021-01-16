@@ -300,6 +300,9 @@ class ForexEnv(gym.Env):
 
 
     def reset(self):
+        #### out ####
+        self.render()
+        #####
         self.count_tick = 0
         self.balance = 200
         self.budget = self.balance

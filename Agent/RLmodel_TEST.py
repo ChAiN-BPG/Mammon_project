@@ -6,7 +6,7 @@ import FX_trading
 
 
 environment = OpenAIGym(level='FXTrading-v99',visualize=False)
-# agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
+# # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
         agent='ppo',
@@ -35,18 +35,18 @@ runner.run(num_episodes=1200,save_best_agent=True)
 runner.close()
 
 
-# agent = Agent.load(directory='test/testmodel_saver_dqn', format='checkpoint')
+agent = Agent.load(directory='test11/testmodel_saver_dqn1', format='checkpoint')
 
-# env = gym.make('FXTrading-v0')
-# observation = env.reset()
-# for t in range(1000):
-#     env.render()
-#     print(observation)
-#     action = agent.act(states=  observation)
-#     observation, reward, done, _ = env.step(action)
-#     agent.observe(reward=reward,terminal=done)
-#     if done:
-#         print("Episode finished after {} timesteps".format(t+1))
-#         break
-# env.plot_data()
-# env.close()
+env = gym.make('FXTrading-v0')
+observation = env.reset()
+for t in range(1000):
+    env.render()
+    print(observation)
+    action = agent.act(states=  observation)
+    observation, reward, done, _ = env.step(action)
+    agent.observe(reward=reward,terminal=done)
+    if done:
+        print("Episode finished after {} timesteps".format(t+1))
+        break
+env.plot_data()
+env.close()
