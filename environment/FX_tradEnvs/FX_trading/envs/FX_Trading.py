@@ -30,8 +30,10 @@ class ForexEnv(gym.Env):
     """
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
+        self.window_slide = 3 
+        unit = 4 * self.window_slide if self.window_slide != None else 4
         self.action_space = spaces.Discrete(3) 
-        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(12,), dtype=np.float32) ## แก้ observation with no preprocess 
+        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
         df_data = df_data.iloc[:,0:6]
@@ -95,7 +97,7 @@ class ForexEnv(gym.Env):
         self.count_ordered = 0
         # currancy data
         self.night = 0
-        self.tick_data = 0
+        self.tick_data = 0 if  self.window_slide == None else self.window_slide - 1
         self.date_data = 0
         self.open_data = 0
         self.close_data = 0
@@ -194,12 +196,12 @@ class ForexEnv(gym.Env):
 
         observation = [data(t),order_state,order_price]
         """
-        if self.tick_data < 2 :
-            data = self.my_data[self.tick_data,2:]
-            data = np.array([data,data,data])
-        else :
-            data = self.my_data[self.tick_data - 2 :self.tick_data + 1,2:]
-        
+        # if self.tick_data < 2 :
+        #     data = self.my_data[self.tick_data,2:]
+        #     data = np.array([data,data,data])
+        # else :
+        #     data = self.my_data[self.tick_data - 2 :self.tick_data + 1,2:]
+        data = self.my_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
         # data = self.my_data[self.tick_data,2:]
@@ -306,7 +308,7 @@ class ForexEnv(gym.Env):
         self.profit_order = 0
         self.loss_order = 0 
         self.count_ordered = 0
-        self.tick_data = 0 ##np.random.random_integers(self.data_AllTick - 1500)
+        self.tick_data = 0 if  self.window_slide == None else self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
         self.date_data = 0
         self.open_data = 0
         self.close_data = 0

@@ -9,7 +9,7 @@ environment = OpenAIGym(level='FXTrading-v99',visualize=False)
 # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
-        agent='dqn',
+        agent='ppo',
         # Automatically configured network
         network=[
         # dict(type='gru', size=20,horizon = 1)
@@ -31,7 +31,7 @@ agent = dict(
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
-runner.run(num_episodes=1200)
+runner.run(num_episodes=1200,save_best_agent=True)
 runner.close()
 
 
