@@ -82,6 +82,8 @@ from plotly.subplots import make_subplots
 # fig.update_layout(xaxis_rangeslider_visible=False)
 # fig.show()
 
+data = [i for i in range (100)]
+print(max(data[:]))
 
 
 data = pd.read_excel('data/dataset/XM_EURUSD-2010_H1.xlsx',header=None)
