@@ -17,11 +17,11 @@ def finished_ep(r,_):
     # print("==================================================")
     if r.episode_rewards[-1] >= max(r.episode_rewards[:]) :
         r.agent.save(directory='test/saved', format='checkpoint')
-        print("save best model suceeded at reward : {}".format(r.episode_rewards[-1]))
+        print("#### save best model suceeded at reward : {} ####".format(r.episode_rewards[-1]))
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v99',visualize=False)
+environment = OpenAIGym(level='FXTrading-v2011',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         

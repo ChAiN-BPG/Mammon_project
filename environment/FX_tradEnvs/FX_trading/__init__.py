@@ -16,7 +16,27 @@ register(
     kwargs={'dataset': 'data/TimeFrame/2004/GBPUSD-2004_H1.xlsx'}
 )
 register(
-    id='FXTrading-v99',
+    id='FXTrading-v2011',
     entry_point='FX_trading.envs:ForexEnv',
     kwargs={'dataset': 'data/dataset/XM_EURUSD-2011_H1.xlsx'}
+)
+register(
+    id='FXTrading-v2012',
+    entry_point='FX_trading.envs:ForexEnv',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2012_H1.xlsx'}
+)
+register(
+    id='FXTrading-v2013',
+    entry_point='FX_trading.envs:ForexEnv',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2013_H1.xlsx'}
+)
+register(
+    id='FXTrading-v2014',
+    entry_point='FX_trading.envs:ForexEnv',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2014_H1.xlsx'}
+)
+register(
+    id='FXTrading-v2015',
+    entry_point='FX_trading.envs:ForexEnv',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2015_H1.xlsx'}
 )
