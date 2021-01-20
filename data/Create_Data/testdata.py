@@ -4,6 +4,8 @@ import datetime
 import talib as ta 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from sklearn.preprocessing import MinMaxScaler
+import pickle
 
 # data = pd.read_excel('data/dataset/XM_EURUSD-2012_H1.xlsx',header=None)
 # # close_diff = data.iloc[1:,5] - data.iloc[:len(data),5]
@@ -82,8 +84,22 @@ from plotly.subplots import make_subplots
 # fig.update_layout(xaxis_rangeslider_visible=False)
 # fig.show()
 
-data = [i for i in range (100)]
-print(max(data[:]))
+# data = [i for i in range (100)]
+# data = np.array(data)
+# print(data)
+# data = np.reshape(data,(-1,1))
+# scaler = MinMaxScaler()
+# norm = scaler.fit_transform(data)
+# print(norm)
+# test = [x for x in range(101,120)]
+# test = np.array(test)
+# test = np.reshape(test,(-1,1))
+# print(test)
+# norm_test = scaler.transform(test)
+# print(norm_test)
+# print("waiting...")
+
+
 
 
 data = pd.read_excel('data/dataset/XM_EURUSD-2010_H1.xlsx',header=None)
@@ -109,6 +125,7 @@ data = {
     'high' : data['high'],
     'low'  : data['low'],
     'close' : data['close'],
+    'volume' : data['volume'],
     'macd' : macd,
     'macdsignal':macdsignal,
     'macdhist':  macdhist, 
@@ -121,12 +138,31 @@ data = {
     'aroonup' : aroonup
     }
 all_data = pd.DataFrame(data= data)
-print(all_data)
-print("============== MAX ================")
-print(all_data.max())
-print("============== MIN ================")
-print(all_data.min())
-print("============= MEAN ================")
-print(all_data.mean())
-# print(all_data.corr(method=histogram_intersection))
+# print(all_data)
+# print(all_data.describe())
+res = all_data.iloc[:,2:]
+res = res.dropna()
+res1 = res.to_numpy()
+scaler = MinMaxScaler(feature_range=(-0.85,0.85))
+print(scaler.fit(res))
+print(scaler.data_max_)
+pickle.dump(scaler,open('model/scaler.pickle', 'wb'))
+test_scaler = pickle.load(open('model/scaler.pickle', 'rb'))
+normalixed = test_scaler.transform(res)
+print(normalixed)
+# fig = go.Figure()
+# fig.add_trace(
+#     go.Histogram(x=normalixed)
+# )
 
+
+# fig = make_subplots(rows=2, cols=1,
+#                     shared_xaxes=True,
+#                     vertical_spacing=0.02)
+
+# fig.add_trace(
+#     go.Histogram(x=all_data['low']),row=1 ,col=1
+# )
+
+# fig.update_layout(xaxis_rangeslider_visible=False)
+# fig.show()

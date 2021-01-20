@@ -2,6 +2,7 @@ import gym
 from numpy import genfromtxt
 from gym import utils
 from gym import spaces
+import pickle
 import numpy as np
 import talib as ta 
 import pandas as pd 
@@ -31,41 +32,43 @@ class ForexEnv(gym.Env):
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
         self.window_slide = 1
-        unit = 4 * self.window_slide 
+        unit = 15 * self.window_slide 
         self.action_space = spaces.Discrete(3) 
-        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
+        self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
         df_data = pd.read_excel(dataset,header=None)
-        df_data = df_data.iloc[:,0:6]
-        df_data.columns = ['date','time','open','high','low','close']
+        # df_data = df_data.iloc[:,0:6]
+        df_data.columns = ['date','time','open','high','low','close','volume']
         ##  ================ add indicator ==================== 
-        # macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
-        # ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        # slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        # WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        # SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
-        # aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
+        macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
+        aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
         ## ====================================================
-        # data = {
-        #     'time' : df_data['time'],
-        #     'open' : df_data['open'],
-        #     'high' : df_data['high'],
-        #     'low'  : df_data['low'],
-        #     'close' : df_data['close'],
-        #     'macd' : macd,
-        #     'macdsignal':macdsignal,
-        #     'macdhist':  macdhist, 
-        #     'ATR' : ATR , 
-        #     'slowk' : slowk, 
-        #     'slowd' : slowd, 
-        #     'WILL' : WILL,
-        #     'SAR' : SAR,
-        #     'aroondown' : aroondown,
-        #     'aroonup' : aroonup
-            # }
-        # all_data = pd.DataFrame(data= data)
-        all_data = df_data
-        # all_data =  all_data.dropna()
+        data = {
+            'date' : df_data['date'],
+            'time' : df_data['time'],
+            'open' : df_data['open'],
+            'high' : df_data['high'],
+            'low'  : df_data['low'],
+            'close' : df_data['close'],
+            'volume' : df_data['volume'],
+            'macd' : macd,
+            'macdsignal':macdsignal,
+            'macdhist':  macdhist, 
+            'ATR' : ATR , 
+            'slowk' : slowk, 
+            'slowd' : slowd, 
+            'WILL' : WILL,
+            'SAR' : SAR,
+            'aroondown' : aroondown,
+            'aroonup' : aroonup
+            }
+        all_data = pd.DataFrame(data= data)
+        # all_data = df_data
+        all_data =  all_data.dropna()
         self.my_data = all_data.to_numpy()
         self.data_AllTick = len(self.my_data)
         self.data_column = len(self.my_data[0])
@@ -104,14 +107,14 @@ class ForexEnv(gym.Env):
         self.high_data = 0
         self.low_data = 0
         self.wrong_move = False
-        # normalize data
+        # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.my_data[:,1:15])
-        # self.encoder = scaler
-        # render data
+        self.encoder = pickle.load(open('model/scaler.pickle', 'rb'))
+        # =========== render data ===============
         self.profit_order = 0
         self.loss_order = 0 
-        # data collector
+        # ========== data collector =============
         self.all_order = []
         
 
@@ -206,10 +209,10 @@ class ForexEnv(gym.Env):
         ## ========= set one candle ===============
         # data = self.my_data[self.tick_data,2:]
         data = np.array(data)
-        obs_data = data
-        # obs_data = self.encoder.transform(data) 
+        # obs_data = data
+        obs_data = self.encoder.transform(data) 
 
-        obs_data = data.flatten()
+        obs_data = obs_data.flatten()
         obs_data = obs_data.astype('float32')
         # out = 0
         # if self.order_state == 2: out = -1
