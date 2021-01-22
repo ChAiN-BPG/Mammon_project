@@ -2,6 +2,7 @@ import gym
 import tensorforce as tf 
 from tensorforce import Runner , Agent
 import numpy as np 
+import os
 from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
 
@@ -15,8 +16,11 @@ def finished_ep(r,_):
     # if r.episodes % 10 == 0:
     #     print("Average of last 10 rewards: {}".format(np.mean(r.episode_rewards[-10:])))
     # print("==================================================")
-    if r.episode_rewards[-1] >= np.mean(r.episode_rewards[:]) :
-        r.agent.save(directory='test/saved', format='checkpoint',append=None)
+    pathfile = 'test/saved'
+    if r.episode_rewards[-1] >= np.max(r.episode_rewards[:]) :
+        if os.path.exists(pathfile):
+            os.remove(pathfile)
+        r.agent.save(directory=pathfile, format='checkpoint',append=None)
         print("#### save best model suceeded at reward : {} ####".format(r.episode_rewards[-1]))
         pass
     return True
