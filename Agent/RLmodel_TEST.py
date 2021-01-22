@@ -2,6 +2,7 @@ import gym
 import tensorforce as tf 
 from tensorforce import Runner , Agent
 import numpy as np 
+import shutil
 import os
 from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
@@ -19,7 +20,7 @@ def finished_ep(r,_):
     pathfile = 'test/saved'
     if r.episode_rewards[-1] >= np.max(r.episode_rewards[:]) :
         if os.path.exists(pathfile):
-            os.remove(pathfile)
+            shutil.rmtree(pathfile)
         r.agent.save(directory=pathfile, format='checkpoint',append=None)
         print("#### save best model suceeded at reward : {} ####".format(r.episode_rewards[-1]))
         pass
