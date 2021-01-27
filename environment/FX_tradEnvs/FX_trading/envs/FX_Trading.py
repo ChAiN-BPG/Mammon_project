@@ -116,7 +116,8 @@ class ForexEnv(gym.Env):
         self.loss_order = 0 
         # ========== data collector =============
         self.all_order = []
-        
+        # ========== debuff data ================
+        self.all_reward =  0
 
 
 
@@ -295,8 +296,8 @@ class ForexEnv(gym.Env):
             obs = self._next_observation()
             reward = self._reward_(action,outcome)
             self.count_tick += 1
-            
-        return obs , reward , episode_over, {}
+            self.all_reward += reward
+        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward}
         
 
 
@@ -325,6 +326,8 @@ class ForexEnv(gym.Env):
         self.margin_free = self.balance
         self.profit = 0
         self.equity = self.balance
+        # ========== debuff data ================
+        self.all_reward =  0
         return self._next_observation()
 
 
