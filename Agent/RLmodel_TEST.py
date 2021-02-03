@@ -5,6 +5,7 @@ from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
 
 
+<<<<<<< Updated upstream
 environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 agent = dict(
         
@@ -32,6 +33,24 @@ agent = dict(
         dict(type='dense', size=10, activation='tanh'),
         dict(type='dense', size=20, activation='tanh'),
         dict(type='dense', size=10, activation='tanh')
+=======
+environment = OpenAIGym(level='FXTrading-v99',visualize=False)
+# # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
+agent = dict(
+        
+        agent='ppo',
+        # Automatically configured network
+        network=[
+        # dict(type='gru', size=20,horizon = 1)
+        # dict(type='dense', size=20, activation='tanh')
+        dict(type='dense',size=25, activation='relu'),
+        dict(type='dense',size=50, activation='relu'),
+        # dict(type='dense',size=50, activation='tanh'),
+        # dict(type='dense',size=50, activation='tanh'),
+        dict(type='dense',size=25, activation='relu')
+        # dict(type='dense',size=10, activation='sigmoid')
+        # dict(type='lstm', size=10,horizon = 1)
+>>>>>>> Stashed changes
     ],
         batch_size=5, learning_rate=3e-4,max_episode_timesteps = 1000,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
@@ -42,6 +61,7 @@ agent = dict(
     )
 runner = Runner(agent=agent, environment=environment)
 
+<<<<<<< Updated upstream
 # Train for 200 episodes
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
@@ -54,6 +74,14 @@ runner.run(num_episodes=1000)
 >>>>>>> Stashed changes
 runner.close()
 # agent = Agent.load(directory='model', format='checkpoint')
+=======
+# # Train for 200 episodes
+runner.run(num_episodes=500,save_best_agent='C:/Users/Z77X/Documents/GitHub/Mammon_project/test')
+runner.close()
+
+
+# agent = Agent.load(directory='test11/testmodel_saver_dqn1', format='checkpoint')
+>>>>>>> Stashed changes
 
 # env = gym.make('FXTrading-v0')
 # observation = env.reset()
