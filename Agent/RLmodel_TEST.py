@@ -61,15 +61,19 @@ filepath = 'test/saved'
 print(filepath)
 agent = Agent.load(directory=filepath, format='checkpoint')
 observation = env.reset()
-
+record = []
 for t in range(6210):
-    env.render()
-    print(observation)
+    # env.render()
+    # print(observation)
     action = agent.act(states=  observation)
     observation, reward, done, infos = env.step(action)
     agent.observe(reward=reward,terminal=done)
     print("+++++++++++++++++++++++++")
     # print("reward : {0}, ALL_reward : {1} ").format(infos['reward'],infos['all_reward'])
+    print("profit order : " + str(infos['pro_order']))
+    print("loss order : " + str(infos['loss_order']))
+    print("budget : " + str(infos['budget']))
+    print("profit : " + str(infos['budget'] - 200))
     print("reward : " + str(infos['reward']))
     print("All_reward : " + str(infos['all_reward']))
     print("+++++++++++++++++++++++++")

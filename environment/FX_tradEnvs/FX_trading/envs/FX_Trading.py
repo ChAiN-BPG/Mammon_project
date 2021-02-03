@@ -32,7 +32,7 @@ class ForexEnv(gym.Env):
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset):
         self.window_slide = 1
-        unit = 15 * self.window_slide 
+        unit = 15 * self.window_slide + 1
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
@@ -214,6 +214,7 @@ class ForexEnv(gym.Env):
         obs_data = self.encoder.transform(data) 
 
         obs_data = obs_data.flatten()
+        obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
         # out = 0
         # if self.order_state == 2: out = -1
@@ -297,7 +298,7 @@ class ForexEnv(gym.Env):
             reward = self._reward_(action,outcome)
             self.count_tick += 1
             self.all_reward += reward
-        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward}
+        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}
         
 
 
