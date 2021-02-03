@@ -1,3 +1,4 @@
+from numpy.testing._private.utils import print_assert_equal
 import pandas as pd 
 import numpy as np
 import datetime
@@ -99,8 +100,10 @@ data = pd.read_excel('data/dataset/XM_EURUSD-2020_H1.xlsx',header=None)
 # print(norm_test)
 # print("waiting...")
 
-
-
+data = {'x' : 1,'y': 2}
+print(data['x'])
+print(data['y'])
+print("----------------")
 
 data = pd.read_excel('data/dataset/XM_EURUSD-2010_H1.xlsx',header=None)
 # data1 = pd.read_excel('data/dataset/XM_EURUSD-2011_H1.xlsx',header=None)
