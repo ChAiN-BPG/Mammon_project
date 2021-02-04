@@ -297,7 +297,7 @@ class ForexEnv(gym.Env):
             reward = self._reward_(action,outcome)
             self.count_tick += 1
             self.all_reward += reward
-        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward}
+        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget  }
         
 
 

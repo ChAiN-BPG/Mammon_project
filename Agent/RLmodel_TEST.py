@@ -6,6 +6,7 @@ import shutil
 import os
 from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
+import plotly.graph_objects as go
 
 # def finished_ep(r,_):
 #     # print("==================================================")
@@ -57,22 +58,28 @@ import FX_trading
 
 
 env = gym.make('FXTrading-v2011')
-filepath = 'test/saved'
+filepath = 'test/test'
 print(filepath)
 agent = Agent.load(directory=filepath, format='checkpoint')
 observation = env.reset()
-
+record = []
 for t in range(6210):
-    env.render()
-    print(observation)
+    # env.render()
+    # print(observation)
     action = agent.act(states=  observation)
     observation, reward, done, infos = env.step(action)
     agent.observe(reward=reward,terminal=done)
     print("+++++++++++++++++++++++++")
     # print("reward : {0}, ALL_reward : {1} ").format(infos['reward'],infos['all_reward'])
+    print("Profit order : " + str(infos['pro_order']))
+    print("Loss order : " + str(infos['loss_order']))
+    print("budget : " + str(infos['budget']))
+    print("profit : " + str(infos['budget'] - 200))
     print("reward : " + str(infos['reward']))
     print("All_reward : " + str(infos['all_reward']))
     print("+++++++++++++++++++++++++")
+    data = [infos['pro_order'],infos['loss_order'],infos['budget'],infos['reward'],infos['all_reward']]
+    record.append(data)
     if done:
         print("Episode finished after {} timesteps".format(t+1))
         break
