@@ -123,7 +123,7 @@ class ForexEnv(gym.Env):
 
 
         
-    def _calculate_(self,action):
+    def _calculate_(self):
         outcome = 0
         if self.order_state == 0 : return outcome
         if self.order_state == 1 :
@@ -159,7 +159,7 @@ class ForexEnv(gym.Env):
         ## add margin  
         self.margin = self.order_price/ self.leverage
         self.margin_free = self.budget - self.margin
-
+        _ = self._calculate_()
 
 
     def _close_(self,value,action):
@@ -227,7 +227,7 @@ class ForexEnv(gym.Env):
 
 
 
-    def _reward_(self,action,value): ## เกก้ reward 
+    def _reward_(self): ## เกก้ reward 
         reward = 0
     
         ## กรณี เล่นผิด
@@ -284,7 +284,7 @@ class ForexEnv(gym.Env):
             self.high_data = self.my_data[self.tick_data,3]
             self.low_data = self.my_data[self.tick_data,4]
             self.close_data = self.my_data[self.tick_data,5]
-            outcome = self._calculate_(action)
+            outcome = self._calculate_()
             if action == 0:
                 pass
             # elif action == 3 :
@@ -295,9 +295,10 @@ class ForexEnv(gym.Env):
             else:
                 self._order_(action)
             obs = self._next_observation()
-            reward = self._reward_(action,outcome)
+            reward = self._reward_()
             self.count_tick += 1
             self.all_reward += reward
+            self.pre_equity = self.equity
         return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}
         
 
@@ -327,6 +328,7 @@ class ForexEnv(gym.Env):
         self.margin_free = self.balance
         self.profit = 0
         self.equity = self.balance
+        self.pre_equity = self.balance
         # ========== debuff data ================
         self.all_reward =  0
         return self._next_observation()
