@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 from sklearn.preprocessing import MinMaxScaler
 import pickle
 
-data = pd.read_excel('data/dataset/XM_EURUSD-2020_H1.xlsx',header=None)
+data = pd.read_excel('data/dataset/XM_EURUSD-2013_H1.xlsx',header=None)
 # # close_diff = data.iloc[1:,5] - data.iloc[:len(data),5]
 # close_a = np.array(data.iloc[1:,5])
 # close_b = np.array(data.iloc[:len(data)-1,5])
@@ -25,16 +25,16 @@ data = pd.read_excel('data/dataset/XM_EURUSD-2020_H1.xlsx',header=None)
 # fig = make_subplots(rows=4, cols=1,
 #                     shared_xaxes=True,
 #                     vertical_spacing=0.02)
-# fig = go.Figure()
-# # print(data)
-# fig.add_trace(
-#     go.Candlestick(x=[x for x in range(len(data))],
-#         open=data.iloc[:,2],
-#         high=data.iloc[:,3],
-#         low=data.iloc[:,4],
-#         close=data.iloc[:,5])
+fig = go.Figure()
+# print(data)
+fig.add_trace(
+    go.Candlestick(x=[x for x in range(len(data))],
+        open=data.iloc[:,2],
+        high=data.iloc[:,3],
+        low=data.iloc[:,4],
+        close=data.iloc[:,5])
         # ,row=1, col=1
-    # )
+    )
 # fig.add_trace(
 #     go.Scatter(x=[x for x in range(len(data))],
 #     y = macd)
@@ -82,8 +82,8 @@ data = pd.read_excel('data/dataset/XM_EURUSD-2020_H1.xlsx',header=None)
 #     y = close_rela),row=5
 #     , col=1
 #     )
-# fig.update_layout(xaxis_rangeslider_visible=False)
-# fig.show()
+fig.update_layout(xaxis_rangeslider_visible=False)
+fig.show()
 
 # data = [i for i in range (100)]
 # data = np.array(data)
@@ -105,7 +105,7 @@ print(data['x'])
 print(data['y'])
 print("----------------")
 
-data = pd.read_excel('data/dataset/XM_EURUSD-2010_H1.xlsx',header=None)
+data = pd.read_excel('data/dataset/XM_EURUSD-201ๅ_H1.xlsx',header=None)
 # data1 = pd.read_excel('data/dataset/XM_EURUSD-2011_H1.xlsx',header=None)
 print(len(data))
 # print(len(data1))
