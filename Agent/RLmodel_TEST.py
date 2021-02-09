@@ -7,6 +7,7 @@ import shutil
 import os
 from tensorforce.environments.openai_gym import OpenAIGym
 import FX_trading
+import plotly.graph_objects as go
 
 def finished_ep(r,_):
     # print("==================================================")
