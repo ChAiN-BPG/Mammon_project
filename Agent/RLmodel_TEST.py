@@ -1,4 +1,5 @@
 import gym
+import pandas as pd
 import tensorforce as tf 
 from tensorforce import Runner , Agent
 import numpy as np 
@@ -17,11 +18,11 @@ def finished_ep(r,_):
     # if r.episodes % 10 == 0:
     #     print("Average of last 10 rewards: {}".format(np.mean(r.episode_rewards[-10:])))
     # print("==================================================")
-    pathfile = 'test/saved'
+    pathfile = '/content/drive/MyDrive/project_mammon/test/saved'
     if r.episode_rewards[-1] >= np.max(r.episode_rewards[:]) :
         if os.path.exists(pathfile):
             shutil.rmtree(pathfile)
-        r.agent.save(directory=pathfile, format='checkpoint',append=None)
+        # r.agent.save(directory=pathfile, format='checkpoint',append=None)
         print("#### save best model suceeded at reward : {} ####".format(r.episode_rewards[-1]))
         pass
     return True
@@ -45,40 +46,48 @@ agent = dict(
     ],
         batch_size=5, learning_rate=3e-4,max_episode_timesteps = 7000,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
-        summarizer = dict(directory= 'test/summaries_test'),
-        saver=dict(directory='test/testmodel_saver_test', frequency=10, max_checkpoints=1000),
+        # summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summaries_test'),
+        # saver=dict(directory='/content/drive/MyDrive/project_mammon/test/testmodel_saver_test', frequency=10, max_checkpoints=10),
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
 
 # Train for 200 episodes
-runner.run(num_episodes=1200,callback=finished_ep)
+# runner.run(num_episodes=1200,callback=finished_ep)
+runner.run(num_episodes=1200)
 runner.close()
 
 
 # env = gym.make('FXTrading-v2011')
-# filepath = 'test/saved'
+# filepath = 'test/test/saved_fix2'
 # print(filepath)
 # agent = Agent.load(directory=filepath, format='checkpoint')
-# observation = env.reset()
 # record = []
-# for t in range(6210):
-#     # env.render()
-#     # print(observation)
-#     action = agent.act(states=  observation)
-#     observation, reward, done, infos = env.step(action)
-#     agent.observe(reward=reward,terminal=done)
-#     print("+++++++++++++++++++++++++")
-#     # print("reward : {0}, ALL_reward : {1} ").format(infos['reward'],infos['all_reward'])
-#     print("profit order : " + str(infos['pro_order']))
-#     print("loss order : " + str(infos['loss_order']))
-#     print("budget : " + str(infos['budget']))
-#     print("profit : " + str(infos['budget'] - 200))
-#     print("reward : " + str(infos['reward']))
-#     print("All_reward : " + str(infos['all_reward']))
-#     print("+++++++++++++++++++++++++")
-#     if done:
-#         print("Episode finished after {} timesteps".format(t+1))
-#         break
-# env.plot_data()
+# for i in range(10):
+#     observation = env.reset()
+#     for t in range(6210):
+#         # env.render()
+#         # print(observation)
+#         action = agent.act(states=  observation)
+#         observation, reward, done, infos = env.step(action)
+#         agent.observe(reward=reward,terminal=done)
+#         print("+++++++++++++++++++++++++")
+#         # print("reward : {0}, ALL_reward : {1} ").format(infos['reward'],infos['all_reward'])
+#         print("profit order : " + str(infos['pro_order']))
+#         print("loss order : " + str(infos['loss_order']))
+#         print("budget : " + str(infos['budget']))
+#         print("profit : " + str(infos['budget'] - 200))
+#         print("reward : " + str(infos['reward']))
+#         print("All_reward : " + str(infos['all_reward']))
+#         print("+++++++++++++++++++++++++")
+#         data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
+#         record.append(data)
+#         if done:
+#             print("Episode finished after {} timesteps".format(t+1))
+#             break
+# # env.plot_data()
 # env.close()
+# #================== export data =====================
+# record = pd.DataFrame(record)
+# record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
+# record.to_csv('test/record.csv',index=False)

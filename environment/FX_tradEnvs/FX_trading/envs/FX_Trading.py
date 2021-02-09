@@ -30,7 +30,7 @@ class ForexEnv(gym.Env):
         sperad   : 0.00022
     """
     ## this emvirpnment has no spread and magin calculate // todo
-    def __init__(self,dataset):
+    def __init__(self,dataset,model):
         self.window_slide = 1
         unit = 15 * self.window_slide + 1
         self.action_space = spaces.Discrete(3) 
@@ -110,7 +110,7 @@ class ForexEnv(gym.Env):
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.my_data[:,1:15])
-        self.encoder = pickle.load(open('model/scaler.pickle', 'rb'))
+        self.encoder = pickle.load(open(model, 'rb'))
         # =========== render data ===============
         self.profit_order = 0
         self.loss_order = 0 
@@ -211,8 +211,14 @@ class ForexEnv(gym.Env):
         # data = self.my_data[self.tick_data,2:]
         data = np.array(data)
         # obs_data = data
-        obs_data = self.encoder.transform(data) 
+        obs_data = []
+        for i in range (self.window_slide):
+            res = data[i,:]
+            res = self.encoder.transform([res]) 
+            obs_data.append(res[0])
 
+        # obs_data = self.encoder.transform(data) 
+        obs_data = np.array(obs_data)
         obs_data = obs_data.flatten()
         obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
