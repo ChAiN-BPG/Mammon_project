@@ -92,8 +92,8 @@ class ForexEnv(gym.Env):
         self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
         self.margin_free = self.balance # self.balance - self.margin
         self.pre_equity = self.balance
-        self.swap_long = 0 ##-0.2
-        self.swap_short = 0  ##-2.2
+        self.swap_long = -0.2
+        self.swap_short = -2.2
         # the order details
         self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_price = 0
@@ -237,8 +237,8 @@ class ForexEnv(gym.Env):
         reward = 0
     
         ## กรณี เล่นผิด
-        if self.wrong_move :
-            return (-10000)
+        # if self.wrong_move :
+        #     return (-10000)
 
         ## กรณี ยังไม่order
         Longterm = 0
