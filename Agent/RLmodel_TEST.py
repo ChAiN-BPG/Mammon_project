@@ -1,3 +1,4 @@
+from os import path
 import gym
 import pandas as pd
 import tensorforce as tf 
@@ -45,10 +46,10 @@ agent = dict(
         # dict(type='dense',size=10, activation='sigmoid')
         # dict(type='lstm', size=10,horizon = 1)
     ],
-        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 7000,
+        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 800,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
-        # summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summaries_test'),
-        # saver=dict(directory='/content/drive/MyDrive/project_mammon/test/testmodel_saver_test', frequency=10, max_checkpoints=10),
+        # summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summary_model'),
+        # saver=dict(directory='/content/drive/MyDrive/project_mammon/test/save_model', frequency=10, max_checkpoints=12),
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
@@ -59,10 +60,10 @@ runner.run(num_episodes=1200)
 runner.close()
 
 
-# env = gym.make('FXTrading-v2011')
-# filepath = 'test/test/saved_fix2'
-# print(filepath)
-# agent = Agent.load(directory=filepath, format='checkpoint')
+# env = gym.make('FXTrading-v2012')
+# # filepath = 'testtest/testmodel_saver_test_1'
+# # print(filepath)
+# agent = Agent.load(directory=("test/test/testmodel_saver_test_1"), format='checkpoint')
 # record = []
 # for i in range(10):
 #     observation = env.reset()
@@ -91,4 +92,4 @@ runner.close()
 # #================== export data =====================
 # record = pd.DataFrame(record)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
-# record.to_csv('test/record.csv',index=False)
+# record.to_csv('test/record_test2.csv',index=False)

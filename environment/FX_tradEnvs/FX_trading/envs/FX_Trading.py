@@ -9,6 +9,7 @@ import pandas as pd
 import datetime
 import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
+import random
 
 class ForexEnv(gym.Env):
     """
@@ -69,15 +70,15 @@ class ForexEnv(gym.Env):
         all_data = pd.DataFrame(data= data)
         # all_data = df_data
         all_data =  all_data.dropna()
-        self.my_data = all_data.to_numpy()
-        self.data_AllTick = len(self.my_data)
-        self.data_column = len(self.my_data[0])
+        self.all_data = all_data.to_numpy()
+        self.data_AllTick = len(self.all_data)
+        self.data_column = len(self.all_data[0])
         self.count_tick = 0
         ## set datetime 
         for x in range(self.data_AllTick):
-            date = self.my_data[x,0].split('.')
-            time = self.my_data[x,1].split(':')
-            self.my_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+            date = self.all_data[x,0].split('.')
+            time = self.all_data[x,1].split(':')
+            self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
         self.balance = 200
@@ -107,9 +108,11 @@ class ForexEnv(gym.Env):
         self.high_data = 0
         self.low_data = 0
         self.wrong_move = False
+        self.count_months = [x for x in range (1,13)]
+        random.shuffle(self.count_months)
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
-        # scaler.fit(self.my_data[:,1:15])
+        # scaler.fit(self.all_data[:,1:15])
         self.encoder = pickle.load(open(model, 'rb'))
         # =========== render data ===============
         self.profit_order = 0
@@ -201,14 +204,14 @@ class ForexEnv(gym.Env):
         observation = [data(t),order_state,order_price]
         """
         # if self.tick_data < 2 :
-        #     data = self.my_data[self.tick_data,2:]
+        #     data = self.all_data[self.tick_data,2:]
         #     data = np.array([data,data,data])
         # else :
-        #     data = self.my_data[self.tick_data - 2 :self.tick_data + 1,2:]
-        data = self.my_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        #     data = self.all_data[self.tick_data - 2 :self.tick_data + 1,2:]
+        data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
-        # data = self.my_data[self.tick_data,2:]
+        # data = self.all_data[self.tick_data,2:]
         data = np.array(data)
         # obs_data = data
         obs_data = []
@@ -269,7 +272,7 @@ class ForexEnv(gym.Env):
         ## check can afford order
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
             episode_over = bool(1)
-        if self.tick_data >= self.data_AllTick :
+        if self.tick_data >= self.MonthTick :
             episode_over = bool(1)
         obs = 0
         reward = 0 
@@ -278,18 +281,18 @@ class ForexEnv(gym.Env):
             # Date = date.iloc[0].split('.')
 # time = date.iloc[1].split(':')
 # asss = datetime.datetime(int(Date[0]),int(Date[1]),int(Date[2]),int(time[0]),int(time[1]))
-            # date = self.my_data[self.tick_data,0].split('.')
-            # date = self.my_data[self.tick_data,0]
+            # date = self.all_data[self.tick_data,0].split('.')
+            # date = self.all_data[self.tick_data,0]
             # date = date.split('.')
-            # time = self.my_data[self.tick_data,1].split(':')
+            # time = self.all_data[self.tick_data,1].split(':')
             # self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
-            # self.my_data[self.tick_data,0] = self.date_data
-            self.date_data = self.my_data[self.tick_data,0]
-            self.open_data = self.my_data[self.tick_data,2]
-            self.high_data = self.my_data[self.tick_data,3]
-            self.low_data = self.my_data[self.tick_data,4]
-            self.close_data = self.my_data[self.tick_data,5]
+            # self.all_data[self.tick_data,0] = self.date_data
+            self.date_data = self.dataset[self.tick_data,0]
+            self.open_data = self.dataset[self.tick_data,2]
+            self.high_data = self.dataset[self.tick_data,3]
+            self.low_data = self.dataset[self.tick_data,4]
+            self.close_data = self.dataset[self.tick_data,5]
             outcome = self._calculate_()
             if action == 0:
                 pass
@@ -314,6 +317,19 @@ class ForexEnv(gym.Env):
     def reset(self):
         #### out ####
         self.render()
+        if len(self.count_months) == 0 :
+            self.count_months = [x for x in range (1,13)]
+            random.shuffle(self.count_months)
+        month = self.count_months.pop()
+        res_data = pd.DataFrame(self.all_data)
+        res_month = []
+        for x in range(self.data_AllTick):
+            res_month.append(res_data.iloc[x,0].month)
+        res_data['month'] = res_month
+        res_data = res_data.groupby('month').get_group(month)
+        res_data = res_data.iloc[:,:-1]
+        self.dataset = res_data.to_numpy()
+        self.MonthTick = len(res_data)
         #####
         self.count_tick = 0
         self.balance = 200
@@ -393,11 +409,11 @@ class ForexEnv(gym.Env):
             buy_ordered = []
         fig_data = go.Figure()
         fig_data.add_trace(
-            go.Candlestick(x=self.my_data[:,0],
-                open=self.my_data[:,2],
-                high=self.my_data[:,3],
-                low=self.my_data[:,4],
-                close=self.my_data[:,5])
+            go.Candlestick(x=self.all_data[:,0],
+                open=self.all_data[:,2],
+                high=self.all_data[:,3],
+                low=self.all_data[:,4],
+                close=self.all_data[:,5])
         )
         fig_data.add_trace(
             go.Scatter(
