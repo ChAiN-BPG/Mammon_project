@@ -274,6 +274,9 @@ class ForexEnv(gym.Env):
             episode_over = bool(1)
         if self.tick_data >= self.MonthTick :
             episode_over = bool(1)
+        ### yearly ###
+        # if self.tick_data >= self.data_AllTick :
+        #     episode_over = bool(1)
         obs = 0
         reward = 0 
         if episode_over == False :
