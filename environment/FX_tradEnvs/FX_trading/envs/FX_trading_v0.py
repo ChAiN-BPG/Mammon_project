@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
 import random
 
-class ForexEnv(gym.Env):
+class ForexEnv_test(gym.Env):
     """
     this is environment for reinforcement learning. This environment is about that simulation for forex trading which can trade only 1 per any time.
 
