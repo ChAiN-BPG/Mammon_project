@@ -357,10 +357,13 @@ class ForexEnv_test(gym.Env):
         self.loss_order = 0 
         self.count_ordered = 0
         # self.tick_data =  self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
-        if self.skip_time :
-            self.window_slide = self.length_skip * (self.unit_timestep - 1)
-        else:
-            self.tick_data =  self.window_slide - 1 
+        if self.tick_data == self.data_AllTick :
+                print("wait")
+        # if self.skip_time :
+        #     self.window_slide = self.length_skip * (self.unit_timestep - 1)
+        # else:
+        #     se
+        self.tick_data =  self.window_slide - 1 
         self.date_data = 0
         self.open_data = 0
         self.close_data = 0
