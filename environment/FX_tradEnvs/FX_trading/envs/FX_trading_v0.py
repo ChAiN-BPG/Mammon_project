@@ -32,8 +32,15 @@ class ForexEnv_test(gym.Env):
     """
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset,model):
-        self.window_slide = 1
-        unit = 15 * self.window_slide + 1
+        self.skip_time = True
+        self.length_skip = 12
+        self.unit_timestep = 3
+        if self.skip_time :
+            unit = 15 * self.unit_timestep + 1
+            self.window_slide = self.length_skip * (self.unit_timestep - 1 )
+        else :
+            self.window_slide = 1
+            unit = 15 * self.window_slide + 1
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
@@ -208,14 +215,24 @@ class ForexEnv_test(gym.Env):
         #     data = np.array([data,data,data])
         # else :
         #     data = self.all_data[self.tick_data - 2 :self.tick_data + 1,2:]
-        data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        if self.skip_time :
+            res_set = []
+            res_set.append(self.all_data[self.tick_data,2:])
+            for x in range(1,self.unit_timestep):
+                rr = self.tick_data - (self.length_skip * x -1)
+                res = self.all_data[rr,2:]
+                res_set.append(res)
+            data = res_set
+            # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        else :
+            data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
         # data = self.all_data[self.tick_data,2:]
         data = np.array(data)
         # obs_data = data
         obs_data = []
-        for i in range (self.window_slide):
+        for i in range (len(data)):
             res = data[i,:]
             res = self.encoder.transform([res]) 
             obs_data.append(res[0])
@@ -339,7 +356,11 @@ class ForexEnv_test(gym.Env):
         self.profit_order = 0
         self.loss_order = 0 
         self.count_ordered = 0
-        self.tick_data =  self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
+        # self.tick_data =  self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
+        if self.skip_time :
+            self.window_slide = self.length_skip * (self.unit_timestep - 1)
+        else:
+            self.tick_data =  self.window_slide - 1 
         self.date_data = 0
         self.open_data = 0
         self.close_data = 0

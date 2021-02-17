@@ -1,11 +1,19 @@
 from gym.envs.registration import register
 
+# register(
+#     id='FXTrading-v0',
+#     entry_point='FX_trading.envs:ForexEnv_test',
+#     kwargs={'dataset': 'data/dataset/XM_EURUSD-2011_H1.xlsx',
+#             'model' : 'model/scaler.pickle'}
+# )
+
 register(
     id='FXTrading-v0',
     entry_point='FX_trading.envs:ForexEnv_test',
     kwargs={'dataset': '/content/Mammon_project/data/dataset/XM_EURUSD-2011_H1.xlsx',
             'model' : '/content/Mammon_project/model/scaler.pickle'}
 )
+
 register(
     id='FXTrading-v1',
     entry_point='FX_trading.envs:ForexEnv_test2',

@@ -29,7 +29,7 @@ def finished_ep(r,_):
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v2011',visualize=False)
+environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
@@ -46,7 +46,7 @@ agent = dict(
         # dict(type='dense',size=10, activation='sigmoid')
         # dict(type='lstm', size=10,horizon = 1)
     ],
-        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 800,
+        batch_size=5, learning_rate=3e-4,max_episode_timesteps = 7000,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
         # summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summary_model'),
         # saver=dict(directory='/content/drive/MyDrive/project_mammon/test/save_model', frequency=10, max_checkpoints=12),
