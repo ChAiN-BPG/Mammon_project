@@ -1,37 +1,38 @@
+from datetime import datetime
 import MetaTrader5 as mt5
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
 
-# if not mt5.initialize(login=14078, server="ThinkMarkets-Live",password="Sl8838450"):
-if not mt5.initialize(login=38111485, server="MetaQuotes-Demo",password="test1234"): 
-    print("initialize() failed, error code =",mt5.last_error())
-    quit()
-# mt5.initialize()
-print(mt5.terminal_info())
-print(mt5.version())
-print(mt5.account_info())
-print("wait you litle shit")
-print(mt5.symbols_total())
-print(mt5.symbol_info("GBPUSD"))
-# selected=mt5.symbol_select("GBPUSD",True)
-# if not selected:
-#     print("Failed to select GBPUSD")
-#     mt5.shutdown()
-#     quit()
-# lasttick=mt5.symbol_info_tick("GBPUSD")
-# print(lasttick)
-# # display tick field values in the form of a list
-# print("Show symbol_info_tick(\"GBPUSD\")._asdict():")
-# symbol_info_tick_dict = mt5.symbol_info_tick("GBPUSD")._asdict()
-# for prop in symbol_info_tick_dict:
-#     print("  {}={}".format(prop, symbol_info_tick_dict[prop]))
+def check():
+    
+    
+    pass 
+
+def send_order():
+   pass
+
+def close_order():
+    pass
+
+def get_observation():
+    pass
 
 
-## send order 
-
-
-
-## show all order 
-orders=mt5.orders_total()
-if orders>0:
-    print("Total orders=",orders)
+mt5.initialize()
+selected = mt5.symbol_select("GBPUSD",True)
+if not selected:
+    print("Failed to select GBPUSD, error code =",mt5.last_error())
 else:
-    print("Orders not found")
+    symbol_info=mt5.symbol_info("GBPUSD")
+    print(symbol_info)
+    print("GBPUSD: currency_base =",symbol_info.currency_base,"  currency_profit =",symbol_info.currency_profit,"  currency_margin =",symbol_info.currency_margin)
+    print()
+account_data = mt5.account_info()
+print("Mammon expert advisor activated !!")
+print("welcome " + str(account_data.name))
+print("Your balance is " + str(account_data.balance))
+mt5.shutdown()
+
+############## test #################
+

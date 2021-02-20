@@ -32,7 +32,7 @@ class ForexEnv_test(gym.Env):
     """
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset,model):
-        self.skip_time = True
+        self.skip_time = False
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
@@ -311,6 +311,8 @@ class ForexEnv_test(gym.Env):
             self.low_data = self.all_data[self.tick_data,4]
             self.close_data = self.all_data[self.tick_data,5]
             outcome = self._calculate_()
+            if self.tick_data == self.data_AllTick -2 :
+                self._close_(outcome,self.order_state)
             if action == 0:
                 pass
             # elif action == 3 :

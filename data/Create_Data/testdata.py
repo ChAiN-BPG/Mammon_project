@@ -10,19 +10,44 @@ from sklearn.preprocessing import MinMaxScaler
 import pickle
 import random
 
-# data = pd.read_excel('data/dataset/XM_EURUSD-2013_H1.xlsx',header=None)
-# # close_diff = data.iloc[1:,5] - data.iloc[:len(data),5]
+data = pd.read_excel('data/dataset/XM_EURUSD-2013_H1.xlsx',header=None)
+# close_diff = data.iloc[1:,5] - data.iloc[:len(data),5]
 # close_a = np.array(data.iloc[1:,5])
 # close_b = np.array(data.iloc[:len(data)-1,5])
 # close_rela = close_a - close_b 
 # open_rela  = np.array(data.iloc[1:,2]) - np.array(data.iloc[:len(data)-1,2])
 # high_rela = np.array(data.iloc[1:,3]) - np.array(data.iloc[:len(data)-1,3])
 # low_rela = np.array(data.iloc[1:,4]) - np.array(data.iloc[:len(data)-1,4])
-# macd, macdsignal, macdhist = ta.MACD(data.iloc[:,5], fastperiod=12, slowperiod=26, signalperiod=9)
+
+macd, macdsignal, macdhist = ta.MACD(data.iloc[:,5], fastperiod=12, slowperiod=26, signalperiod=9) ####
+ATR = ta.ATR(data.iloc[:,3], data.iloc[:,4], data.iloc[:,5], timeperiod=14)
+slowk, slowd = ta.STOCH(data.iloc[:,3], data.iloc[:,4], data.iloc[:,5], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)###
+WILL = ta.WILLR(data.iloc[:,3], data.iloc[:,4], data.iloc[:,5], timeperiod=14)
+SAR = ta.SAR(data.iloc[:,3], data.iloc[:,4], acceleration=0, maximum=0)
+aroondown, aroonup = ta.AROON(data.iloc[:,3], data.iloc[:,4], timeperiod=14)
+
+
+###################### 
+ 
+macd1, macdsignal1, macdhist1 = ta.MACD(data.iloc[:35,5], fastperiod=12, slowperiod=26, signalperiod=9)
+ATR1 = ta.ATR(data.iloc[:35,3], data.iloc[:35,4], data.iloc[:35,5], timeperiod=14)
+slowk1, slowd1 = ta.STOCH(data.iloc[:35,3], data.iloc[:35,4], data.iloc[:35,5], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)###
+WILL1 = ta.WILLR(data.iloc[:35,3], data.iloc[:35,4], data.iloc[:35,5], timeperiod=14)
+SAR1 = ta.SAR(data.iloc[:35,3], data.iloc[:35,4], acceleration=0, maximum=0)
+aroondown1, aroonup1 = ta.AROON(data.iloc[:35,3], data.iloc[:35,4], timeperiod=14)
+
+###################### 
+ 
+macd2, macdsignal2, macdhist2 = ta.MACD(data.iloc[:36,5], fastperiod=12, slowperiod=26, signalperiod=9)
+ATR2 = ta.ATR(data.iloc[:36,3], data.iloc[:36,4], data.iloc[:36,5], timeperiod=14)
+slowk2, slowd2 = ta.STOCH(data.iloc[:36,3], data.iloc[:36,4], data.iloc[:36,5], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)###
+WILL2 = ta.WILLR(data.iloc[:36,3], data.iloc[:36,4], data.iloc[:36,5], timeperiod=14)
+SAR2 = ta.SAR(data.iloc[:36,3], data.iloc[:36,4], acceleration=0, maximum=0)
+aroondown2, aroonup2 = ta.AROON(data.iloc[:36,3], data.iloc[:36,4], timeperiod=14)
 # macd1, macdsignal1, macdhist = ta.MACD(data.iloc[:,5], fastperiod=24, slowperiod=26, signalperiod=9)
 # macd2, macdsignal2, macdhist = ta.MACD(data.iloc[:,5], fastperiod=48, slowperiod=26, signalperiod=9)
 # macd3, macdsignal3, macdhist = ta.MACD(data.iloc[:,5], fastperiod=12, slowperiod=26, signalperiod=18)
-
+print("wait")
 
 # fig = make_subplots(rows=4, cols=1,
 #                     shared_xaxes=True,
@@ -180,22 +205,22 @@ import random
 
 
 ################## test #######################3
-data = pd.read_excel('data/dataset/XM_EURUSD-2013_H1.xlsx',header=None)
-for x in range(len(data)):
-            date = data.iloc[x,0].split('.')
-            time = data.iloc[x,1].split(':')
-            data.iloc[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
-# print(data.iloc[0,0].month)
-month = []
-for x in range(len(data)):
-    month.append(data.iloc[x,0].month)
-    # pass
-data['month'] = month
-print(data)
-res = data.groupby('month').get_group(1)
-res = res.iloc[:,:-1]
-print(res)
-print([ x for x in range (1,13)])
+# data = pd.read_excel('data/dataset/XM_EURUSD-2013_H1.xlsx',header=None)
+# for x in range(len(data)):
+#             date = data.iloc[x,0].split('.')
+#             time = data.iloc[x,1].split(':')
+#             data.iloc[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+# # print(data.iloc[0,0].month)
+# month = []
+# for x in range(len(data)):
+#     month.append(data.iloc[x,0].month)
+#     # pass
+# data['month'] = month
+# print(data)
+# res = data.groupby('month').get_group(1)
+# res = res.iloc[:,:-1]
+# print(res)
+# print([ x for x in range (1,13)])
 # print(random.randrange(1,12))
 
 

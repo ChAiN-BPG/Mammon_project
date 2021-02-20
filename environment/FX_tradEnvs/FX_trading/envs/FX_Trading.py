@@ -297,7 +297,9 @@ class ForexEnv(gym.Env):
             self.low_data = self.dataset[self.tick_data,4]
             self.close_data = self.dataset[self.tick_data,5]
             outcome = self._calculate_()
-            if action == 0:
+            if self.tick_data == self.MonthTick -2 :
+                self._close_(outcome,self.order_state)
+            elif action == 0:
                 pass
             # elif action == 3 :
             #     self._close_(outcome)
