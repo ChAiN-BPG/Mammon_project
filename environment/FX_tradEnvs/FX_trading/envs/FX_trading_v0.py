@@ -291,7 +291,7 @@ class ForexEnv_test(gym.Env):
             episode_over = bool(1)
         if self.tick_data >= self.data_AllTick :
             episode_over = bool(1)
-        if self.equity <= self.budget :
+        if self.equity <= -(self.budget) :
             episode_over = bool(1)
             self.budget = 0
         obs = 0

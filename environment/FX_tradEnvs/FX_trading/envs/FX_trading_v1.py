@@ -46,7 +46,7 @@ class ForexEnv_test2(gym.Env):
         self.data_yearly = []
         self.num_data = dataset
         for x in range(dataset):
-            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             self.data_yearly.append(df_data)
@@ -295,6 +295,9 @@ class ForexEnv_test2(gym.Env):
             episode_over = bool(1)
         if self.tick_data >= self.yearsTick :
             episode_over = bool(1)
+        if self.equity <= -(self.budget) :
+            episode_over = bool(1)
+            self.budget = 0
         obs = 0
         reward = 0 
         if episode_over == False :
