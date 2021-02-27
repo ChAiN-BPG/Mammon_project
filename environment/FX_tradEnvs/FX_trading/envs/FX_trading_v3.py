@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
 import random
 
-class ForexEnv_test(gym.Env):
+class ForexEnv_test4(gym.Env):
     """
     this is environment for reinforcement learning. This environment is about that simulation for forex trading which can trade only 1 per any time.
 
@@ -36,11 +36,11 @@ class ForexEnv_test(gym.Env):
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
-            unit = 15 * self.unit_timestep + 1
+            unit = 8 * self.unit_timestep + 1
             self.window_slide = self.length_skip * (self.unit_timestep - 1 )
         else :
             self.window_slide = 1
-            unit = 15 * self.window_slide + 1
+            unit = 8 * self.window_slide + 1
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
@@ -235,11 +235,11 @@ class ForexEnv_test(gym.Env):
         for i in range (len(data)):
             res = data[i,:]
             res = self.encoder.transform([res]) 
-            obs_data.append(res[0])
+            res = res[0,:8]
+            obs_data.append(res)
 
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
-        
         obs_data = obs_data.flatten()
         obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
@@ -329,6 +329,8 @@ class ForexEnv_test(gym.Env):
             obs = self._next_observation()
             reward = self._reward_()
             self.count_tick += 1
+            if self.date_data.hour == 4 and self.order_state != 0:
+                self.night += 1
             self.all_reward += reward
             self.pre_equity = self.equity
         return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}

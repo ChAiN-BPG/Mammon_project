@@ -29,7 +29,7 @@ def finished_ep(r,_):
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v1',visualize=False)
+environment = OpenAIGym(level='FXTrading-v3',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
@@ -63,9 +63,9 @@ runner.close()
 # env = gym.make('FXTrading-v0')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/test/save_model_yearly"), format='checkpoint')
+# agent = Agent.load(directory=("test/test/save_model_fixed_1"), format='checkpoint')
 # record = []
-# for i in range(10):
+# for i in range(1):
 #     observation = env.reset()
 #     for t in range(6210):
 #         # env.render()
@@ -87,9 +87,9 @@ runner.close()
 #             record.append(data)
 #             print("Episode finished after {} timesteps".format(t+1))
 #             break
-# # env.plot_data()
+#     env.plot_data()
 # env.close()
 # #================== export data =====================
 # record = pd.DataFrame(record)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
-# record.to_csv('test/record_test_2019_more3.csv',index=False)
+# # record.to_csv('test/record_test_2019_more3.csv',index=False)
