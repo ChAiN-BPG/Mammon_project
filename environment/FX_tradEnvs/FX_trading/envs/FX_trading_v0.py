@@ -100,8 +100,11 @@ class ForexEnv_test(gym.Env):
         self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
         self.margin_free = self.balance # self.balance - self.margin
         self.pre_equity = self.balance
-        self.swap_long = -0.2
-        self.swap_short = -2.2
+        self.swap_long = -5#-0.2
+        self.swap_short = -5#-2.2
+        # for reward 
+        self.reset_reward = False
+        self.total_reward = 0
         # the order details
         self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_price = 0
@@ -201,6 +204,7 @@ class ForexEnv_test(gym.Env):
         self.equity = self.budget
         self.margin = 0
         self.night = 0
+        self.reset_reward = True
         
 
 
@@ -256,22 +260,17 @@ class ForexEnv_test(gym.Env):
 
     def _reward_(self): ## เกก้ reward 
         reward = 0
-    
-        ## กรณี เล่นผิด
-        # if self.wrong_move :
-        #     return (-10000)
-
-        ## กรณี ยังไม่order
-        Longterm = 0
-        # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
-        # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
-        # Longterm = self.pre_equity - self.equity
-        Longterm = self.equity - self.pre_equity
-        ## กรณี order แล้ว
-        Shortterm = 0 
+        ## กรณี reward โดยใช้ ผลต่าง equity
+        # reward = self.equity - self.pre_equity
+        ## กรณี reward ที่ใช้ profit แต่ละ order
+        res = self.equity - self.pre_equity
+        if not(self.reset_reward) :
+            self.total_reward += res
+        else:
+            self.total_reward = res
+            self.reset_reward = False
         # if self.order_state > 0 :
         #     Shortterm +=  (value + 1) * 100 ##  เปิด order 
-        reward = Longterm + Shortterm
         return reward
     
 
@@ -383,6 +382,9 @@ class ForexEnv_test(gym.Env):
         self.pre_equity = self.balance
         # ========== debuff data ================
         self.all_reward =  0
+        # for reward 
+        self.reset_reward = False
+        self.total_reward = 0
         return self._next_observation()
 
 
