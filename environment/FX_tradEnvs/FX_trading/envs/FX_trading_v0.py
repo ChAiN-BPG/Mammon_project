@@ -261,14 +261,15 @@ class ForexEnv_test(gym.Env):
     def _reward_(self): ## เกก้ reward 
         reward = 0
         ## กรณี reward โดยใช้ ผลต่าง equity
-        # reward = self.equity - self.pre_equity
+        reward = self.equity - self.pre_equity
         ## กรณี reward ที่ใช้ profit แต่ละ order
-        res = self.equity - self.pre_equity
-        if not(self.reset_reward) :
-            self.total_reward += res
-        else:
-            self.total_reward = res
-            self.reset_reward = False
+        # res = self.equity - self.pre_equity
+        # if not(self.reset_reward) :
+        #     self.total_reward += res
+        # else:
+        #     self.total_reward = res
+        #     self.reset_reward = False
+        # reward = self.total_reward
         # if self.order_state > 0 :
         #     Shortterm +=  (value + 1) * 100 ##  เปิด order 
         return reward

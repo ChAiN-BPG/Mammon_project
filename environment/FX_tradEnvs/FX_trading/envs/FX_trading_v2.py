@@ -371,18 +371,22 @@ class ForexEnv_test3(gym.Env):
                     pass
             if action == 0:
                 pass
-            elif action == 1 and self.order_state == 0:
+            elif action == 1 and self.order_state == 0 :
                 self._order_BUY_()
-            elif action == 2 and self.order_state == 0:
+                reward = self._reward_()
+            elif action == 2 and self.order_state == 0 :
                 self._order_SELL_()
+                reward = self._reward_()
             elif self.order_state == 1 and action == 3 : 
                 self._close_BUY_(outcome)
+                reward = self._reward_()
             elif self.order_state == -1 and action == 4 : 
                 self._close_SELL_(outcome)
+                reward = self._reward_()
             else:
-                pass
+                reward = 0
             obs = self._next_observation()
-            reward = self._reward_()
+            # reward = self._reward_()
             self.count_tick += 1
             if self.date_data.hour == 4 and self.order_state != 0:
                 self.night += 1

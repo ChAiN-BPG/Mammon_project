@@ -63,7 +63,7 @@ runner.close()
 # env = gym.make('FXTrading-v0')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/test3/save_model_all"), format='checkpoint')
+# agent = Agent.load(directory=("test/save_model_fix_reward2"), format='checkpoint')
 # record = []
 # for i in range(1):
 #     observation = env.reset()
@@ -95,4 +95,4 @@ runner.close()
 # #================== export data =====================
 # record = pd.DataFrame(record)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
-# record.to_csv('test/record_test_2011_3A.csv',index=False)
+# record.to_csv('test/record_test_2011_fixed_reward2.csv',index=False)
