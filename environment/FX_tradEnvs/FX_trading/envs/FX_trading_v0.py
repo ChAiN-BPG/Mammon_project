@@ -329,6 +329,8 @@ class ForexEnv_test(gym.Env):
             obs = self._next_observation()
             reward = self._reward_()
             self.count_tick += 1
+            if self.date_data.hour == 4 and self.order_state != 0:
+                self.night += 1
             self.all_reward += reward
             self.pre_equity = self.equity
         return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}

@@ -104,8 +104,8 @@ class ForexEnv_test2(gym.Env):
         self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
         self.margin_free = self.balance # self.balance - self.margin
         self.pre_equity = self.balance
-        self.swap_long = -0.2
-        self.swap_short = -2.2
+        self.swap_long = -5
+        self.swap_short = -5
         # the order details
         self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_price = 0
@@ -332,6 +332,8 @@ class ForexEnv_test2(gym.Env):
             obs = self._next_observation()
             reward = self._reward_()
             self.count_tick += 1
+            if self.date_data.hour == 4 and self.order_state != 0:
+                self.night += 1
             self.all_reward += reward
             self.pre_equity = self.equity
         return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}
