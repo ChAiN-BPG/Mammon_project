@@ -46,7 +46,7 @@ class ForexEnv_test2(gym.Env):
         self.data_yearly = []
         self.num_data = dataset
         for x in range(dataset):
-            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             self.data_yearly.append(df_data)

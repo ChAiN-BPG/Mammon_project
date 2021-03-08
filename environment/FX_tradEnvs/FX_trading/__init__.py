@@ -19,7 +19,7 @@ register(
     id='FXTrading-v1',
     entry_point='FX_trading.envs:ForexEnv_test2',
     kwargs={'dataset': 3,
-            'model' : 'model/scaler.pickle'}
+            'model' : '/content/Mammon_project/model/scaler.pickle'}
 )
 register(
     id='FXTrading-v2',
