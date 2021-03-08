@@ -31,7 +31,7 @@ class ForexEnv_test2(gym.Env):
         sperad   : 0.00022
     """
     def __init__(self,dataset,model):
-        self.skip_time = False
+        self.skip_time = True
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
@@ -46,7 +46,7 @@ class ForexEnv_test2(gym.Env):
         self.data_yearly = []
         self.num_data = dataset
         for x in range(dataset):
-            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             self.data_yearly.append(df_data)
@@ -221,15 +221,15 @@ class ForexEnv_test2(gym.Env):
         #     data = self.all_data[self.tick_data - 2 :self.tick_data + 1,2:]
         if self.skip_time :
             res_set = []
-            res_set.append(self.all_data[self.tick_data,2:])
+            res_set.append(self.dataset[self.tick_data,2:])
             for x in range(1,self.unit_timestep):
                 rr = self.tick_data - (self.length_skip * x -1)
-                res = self.all_data[rr,2:]
+                res = self.dataset[rr,2:]
                 res_set.append(res)
             data = res_set
         #     # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
-        # else :
-        data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        else :
+            data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
         # data = self.all_data[self.tick_data,2:]

@@ -29,7 +29,7 @@ def finished_ep(r,_):
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v0',visualize=False)
+environment = OpenAIGym(level='FXTrading-v1',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
