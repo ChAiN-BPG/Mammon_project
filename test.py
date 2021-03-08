@@ -17,3 +17,7 @@ for i in range(1000):
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
     env.render()
+# from mpi4py import MPI
+# comm = MPI.COMM_WORLD
+# rank = comm.Get_rank()
+# print ("hello world from process ", rank)

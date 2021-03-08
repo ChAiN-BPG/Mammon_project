@@ -11,16 +11,16 @@ import plotly.graph_objects as go
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OneHotEncoder
 import random
 
-class ForexEnv_test2(gym.Env):
+class ForexEnv_test5(gym.Env):
     """
     this is environment for reinforcement learning. This environment is about that simulation for forex trading which can trade only 1 per any time.
 
     init data for gym : 
         action space : 
-            HOLD(0) : Hold order
-            BUY(1) : Buy order 
-            SELL(2) : Sell order 
-            
+            Hold(0) : do nothing 
+            BUY(1) : order buy 
+            SELL(2) : order sell 
+            CLOSE(3): close all of order 
             
         observation space : 
     init data for trading :
@@ -30,68 +30,65 @@ class ForexEnv_test2(gym.Env):
         leverage : (1 : 100)
         sperad   : 0.00022
     """
+    ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset,model):
         self.skip_time = False
         self.length_skip = 12
         self.unit_timestep = 3
+        self.input_size = 21
         if self.skip_time :
-            unit = 15 * self.unit_timestep + 1
+            unit = self.input_size * self.unit_timestep + 1
             self.window_slide = self.length_skip * (self.unit_timestep - 1 )
         else :
             self.window_slide = 1
-            unit = 15 * self.window_slide + 1
+            unit = self.input_size * self.window_slide + 1
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
-        self.data_yearly = []
-        self.num_data = dataset
-        for x in range(dataset):
-            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
-            df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
-            df_data = df_data.to_numpy()
-            self.data_yearly.append(df_data)
+        df_data = pd.read_excel(dataset,header=None)
+        # df_data = df_data.iloc[:,0:6]
+        df_data.columns = ['date','time','open','high','low','close','volume']
         ##  ================ add indicator ==================== 
-        # macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
-        # ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        # slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        # WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        # SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
-        # aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
+        macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
+        aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
         ## ====================================================
-        # data = {
-        #     'date' : df_data['date'],
-        #     'time' : df_data['time'],
-        #     'open' : df_data['open'],
-        #     'high' : df_data['high'],
-        #     'low'  : df_data['low'],
-        #     'close' : df_data['close'],
-        #     'volume' : df_data['volume'],
-        #     'macd' : macd,
-        #     'macdsignal':macdsignal,
-        #     'macdhist':  macdhist, 
-        #     'ATR' : ATR , 
-        #     'slowk' : slowk, 
-        #     'slowd' : slowd, 
-        #     'WILL' : WILL,
-        #     'SAR' : SAR,
-        #     'aroondown' : aroondown,
-        #     'aroonup' : aroonup
-        #     }
-        # all_data = pd.DataFrame(data= data)
+        data = {
+            'date' : df_data['date'],
+            'time' : df_data['time'],
+            'open' : df_data['open'],
+            'high' : df_data['high'],
+            'low'  : df_data['low'],
+            'close' : df_data['close'],
+            'volume' : df_data['volume'],
+            'macd' : macd,
+            'macdsignal':macdsignal,
+            'macdhist':  macdhist, 
+            'ATR' : ATR , 
+            'slowk' : slowk, 
+            'slowd' : slowd, 
+            'WILL' : WILL,
+            'SAR' : SAR,
+            'aroondown' : aroondown,
+            'aroonup' : aroonup
+            }
+        all_data = pd.DataFrame(data= data)
         # all_data = df_data
-        # all_data =  all_data.dropna()
-        # self.all_data = all_data.to_numpy()
-        # self.data_AllTick = len(self.all_data)
-        # self.data_column = len(self.all_data[0])
-        # self.count_tick = 0
-        # ## set datetime 
-        # for x in range(self.data_AllTick):
-        #     date = self.all_data[x,0].split('.')
-        #     time = self.all_data[x,1].split(':')
-        #     self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
-            # self.date_data = datetime.datetime(int(date.year),int(date.years),int(date.day),int(time[0]),int(time[1]))
-        # init base for trading
+        all_data =  all_data.dropna()
+        self.all_data = all_data.to_numpy()
+        self.data_AllTick = len(self.all_data)
+        self.data_column = len(self.all_data[0])
         self.count_tick = 0
+        ## set datetime 
+        for x in range(self.data_AllTick):
+            date = self.all_data[x,0].split('.')
+            time = self.all_data[x,1].split(':')
+            self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+            # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
+        # init base for trading
         self.balance = 200
         self.budget = self.balance
         self.amount = 0.05
@@ -104,8 +101,11 @@ class ForexEnv_test2(gym.Env):
         self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
         self.margin_free = self.balance # self.balance - self.margin
         self.pre_equity = self.balance
-        self.swap_long = -5
-        self.swap_short = -5
+        self.swap_long = -5#-0.2
+        self.swap_short = -5#-2.2
+        # for reward 
+        self.reset_reward = False
+        self.total_reward = 0
         # the order details
         self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_price = 0
@@ -119,8 +119,8 @@ class ForexEnv_test2(gym.Env):
         self.high_data = 0
         self.low_data = 0
         self.wrong_move = False
-        self.count_yearly = [x for x in range (dataset)]
-        random.shuffle(self.count_yearly)
+        self.count_months = [x for x in range (1,13)]
+        random.shuffle(self.count_months)
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.all_data[:,1:15])
@@ -132,6 +132,11 @@ class ForexEnv_test2(gym.Env):
         self.all_order = []
         # ========== debuff data ================
         self.all_reward =  0
+        # ========== update timeframe ===========
+        self.FH_timeframe = self.all_data[0,2:6]
+        self.D_timeframe = self.all_data[0,2:6]
+        self.reset_FH = False
+        self.reset_D = False
 
 
 
@@ -205,6 +210,7 @@ class ForexEnv_test2(gym.Env):
         self.equity = self.budget
         self.margin = 0
         self.night = 0
+        self.reset_reward = True
         
 
 
@@ -227,22 +233,29 @@ class ForexEnv_test2(gym.Env):
                 res = self.all_data[rr,2:]
                 res_set.append(res)
             data = res_set
-        #     # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
-        # else :
-        data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+            # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        else :
+            data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
         # data = self.all_data[self.tick_data,2:]
         data = np.array(data)
+        res_data = [0 for _ in range(11)]
         # obs_data = data
         obs_data = []
         for i in range (len(data)):
             res = data[i,:]
             res = self.encoder.transform([res]) 
+            res_4H = np.append(self.FH_timeframe,res_data)#self.FH_timeframe.append(res_data)
+            res_1D = np.append(self.FH_timeframe,res_data)#self.D_timeframe.append(res_data)
+            res_4H = self.encoder.transform([res_4H])
+            res_1D = self.encoder.transform([res_1D])
             obs_data.append(res[0])
-
+            obs_data = np.append(obs_data[0],res_4H[0][0:3])
+            obs_data= np.append(obs_data,res_1D[0][0:3])
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
+        
         obs_data = obs_data.flatten()
         obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
@@ -259,22 +272,18 @@ class ForexEnv_test2(gym.Env):
 
     def _reward_(self): ## เกก้ reward 
         reward = 0
-    
-        ## กรณี เล่นผิด
-        # if self.wrong_move :
-        #     return (-10000)
-
-        ## กรณี ยังไม่order
-        Longterm = 0
-        # Longterm += -(self.count_tick/self.data_AllTick)  ##  ไม่ยอมเปิด order 
-        # Longterm += (self.budget - self.balance)##  balance ที่เพิ่มขึ้น-ลดลงมีผล
-        # Longterm = self.pre_equity - self.equity
-        Longterm = self.equity - self.pre_equity
-        ## กรณี order แล้ว
-        Shortterm = 0 
+        ## กรณี reward โดยใช้ ผลต่าง equity
+        reward = self.equity - self.pre_equity
+        ## กรณี reward ที่ใช้ profit แต่ละ order
+        # res = self.equity - self.pre_equity
+        # if not(self.reset_reward) :
+        #     self.total_reward += res
+        # else:
+        #     self.total_reward = res
+        #     self.reset_reward = False
+        # reward = self.total_reward
         # if self.order_state > 0 :
         #     Shortterm +=  (value + 1) * 100 ##  เปิด order 
-        reward = Longterm + Shortterm
         return reward
     
 
@@ -293,7 +302,7 @@ class ForexEnv_test2(gym.Env):
         ## check can afford order
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
             episode_over = bool(1)
-        if self.tick_data >= self.yearsTick :
+        if self.tick_data >= self.data_AllTick :
             episode_over = bool(1)
         if self.equity <= -(self.budget) :
             episode_over = bool(1)
@@ -310,15 +319,25 @@ class ForexEnv_test2(gym.Env):
             # date = date.split('.')
             # time = self.all_data[self.tick_data,1].split(':')
             # self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
-            # self.date_data = datetime.datetime(int(date.year),int(date.years),int(date.day),int(time[0]),int(time[1]))
+            # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
             # self.all_data[self.tick_data,0] = self.date_data
-            self.date_data = self.dataset[self.tick_data,0]
-            self.open_data = self.dataset[self.tick_data,2]
-            self.high_data = self.dataset[self.tick_data,3]
-            self.low_data = self.dataset[self.tick_data,4]
-            self.close_data = self.dataset[self.tick_data,5]
+            self.date_data = self.all_data[self.tick_data,0]
+            self.open_data = self.all_data[self.tick_data,2]
+            self.high_data = self.all_data[self.tick_data,3]
+            self.low_data = self.all_data[self.tick_data,4]
+            self.close_data = self.all_data[self.tick_data,5]
+            # ================ update timeframe ======================
+            self.FH_timeframe[1] = self.high_data if self.FH_timeframe[1] < self.high_data else self.FH_timeframe[1]
+            self.D_timeframe[1] = self.high_data if self.D_timeframe[1] < self.high_data else self.D_timeframe[1]
+            self.FH_timeframe[2] = self.low_data if self.FH_timeframe[2] > self.low_data else self.FH_timeframe[2]
+            self.D_timeframe[2] = self.low_data if self.D_timeframe[2] > self.low_data else self.D_timeframe[2]
+            if self.date_data.hour % 4 == 0 :
+                self.FH_timeframe = self.all_data[self.tick_data,2:6]
+            if self.date_data.hour == 1 :
+                self.D_timeframe = self.all_data[self.tick_data,2:6]
+            # ========================================================
             outcome = self._calculate_()
-            if self.tick_data == self.yearsTick -2 :
+            if self.tick_data == self.data_AllTick -2 :
                 self._close_(outcome,self.order_state)
             if action == 0:
                 pass
@@ -345,20 +364,19 @@ class ForexEnv_test2(gym.Env):
     def reset(self):
         #### out ####
         self.render()
-        if len(self.count_yearly) == 0 :
-            self.count_yearly = [x for x in range (self.num_data)]
-            random.shuffle(self.count_yearly)
-        years = self.count_yearly.pop()
-        self.dataset = self.data_yearly[years]
+        # if len(self.count_months) == 0 :
+        #     self.count_months = [x for x in range (1,13)]
+        #     random.shuffle(self.count_months)
+        # month = self.count_months.pop()
         # res_data = pd.DataFrame(self.all_data)
-        # res_years = []
+        # res_month = []
         # for x in range(self.data_AllTick):
-        #     res_years.append(res_data.iloc[x,0].years)
-        # res_data['years'] = res_years
-        # res_data = res_data.groupby('years').get_group(years)
+        #     res_month.append(res_data.iloc[x,0].month)
+        # res_data['month'] = res_month
+        # res_data = res_data.groupby('month').get_group(month)
         # res_data = res_data.iloc[:,:-1]
         # self.dataset = res_data.to_numpy()
-        self.yearsTick = len(self.dataset)
+        # self.MonthTick = len(res_data)
         #####
         self.count_tick = 0
         self.balance = 200
@@ -369,6 +387,8 @@ class ForexEnv_test2(gym.Env):
         self.loss_order = 0 
         self.count_ordered = 0
         # self.tick_data =  self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
+        if self.tick_data == self.data_AllTick :
+                print("wait")
         # if self.skip_time :
         #     self.window_slide = self.length_skip * (self.unit_timestep - 1)
         # else:
@@ -387,6 +407,9 @@ class ForexEnv_test2(gym.Env):
         self.pre_equity = self.balance
         # ========== debuff data ================
         self.all_reward =  0
+        # for reward 
+        self.reset_reward = False
+        self.total_reward = 0
         return self._next_observation()
 
 
