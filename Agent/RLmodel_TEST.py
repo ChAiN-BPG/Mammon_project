@@ -29,7 +29,7 @@ def finished_ep(r,_):
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v1',visualize=False)
+environment = OpenAIGym(level='FXTrading-v3',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
@@ -63,16 +63,16 @@ runner.close()
 # env = gym.make('FXTrading-v0')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/save_model_fix_reward2"), format='checkpoint')
+# agent = Agent.load(directory=("test/test3/save_model_all"), format='checkpoint')
 # record = []
-# for i in range(1):
+# for i in range(3):
 #     observation = env.reset()
 #     for t in range(6210):
 #         # env.render()
 #         # print(observation)
-#         action = agent.act(states=  observation)
+#         action = agent.act(states=  observation,independent=True)
 #         observation, reward, done, infos = env.step(action)
-#         agent.observe(reward=reward,terminal=done)
+#         # agent.observe(reward=reward,terminal=done)
 #         print("+++++++++++++++++++++++++")
 #         # print("reward : {0}, ALL_reward : {1} ").format(infos['reward'],infos['all_reward'])
 #         print("profit order : " + str(infos['pro_order']))
@@ -83,11 +83,11 @@ runner.close()
 #         print("All_reward : " + str(infos['all_reward']))
 #         print("+++++++++++++++++++++++++")
 #         ## show each timestmp
-#         data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
-#         record.append(data)
+#         # data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
+#         # record.append(data)
 #         if done:
-#             # data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
-#             # record.append(data)
+#             data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
+#             record.append(data)
 #             print("Episode finished after {} timesteps".format(t+1))
 #             break
 #     # env.plot_data()

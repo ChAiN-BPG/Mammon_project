@@ -4,7 +4,7 @@ from gym.envs.registration import register
 register(
     id='FXTrading-v0',
     entry_point='FX_trading.envs:ForexEnv_test',
-    kwargs={'dataset': 'data/dataset/XM_EURUSD-2011_H1.xlsx',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2018_H1.xlsx',
             'model' : 'model/scaler.pickle'}
 )
 
@@ -24,15 +24,15 @@ register(
 register(
     id='FXTrading-v2',
     entry_point='FX_trading.envs:ForexEnv_test3',
-    kwargs={'dataset': 'data/dataset/XM_EURUSD-2012_H1.xlsx',
+    kwargs={'dataset': 'data/dataset/XM_EURUSD-2011_H1.xlsx',
             'model' : 'model/scaler.pickle'}
 )
 
 register(
     id='FXTrading-v3',
     entry_point='FX_trading.envs:ForexEnv_test4',
-    kwargs={'dataset': 'data/dataset/XM_EURUSD-2017_H1.xlsx',
-            'model' : 'model/scaler.pickle'}
+    kwargs={'dataset': 3,
+            'model' : '/content/Mammon_project/model/scaler.pickle'}
 )
 
 register(

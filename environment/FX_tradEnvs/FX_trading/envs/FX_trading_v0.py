@@ -88,7 +88,7 @@ class ForexEnv_test(gym.Env):
             self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
-        self.balance = 200
+        self.balance = 20000
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -357,7 +357,7 @@ class ForexEnv_test(gym.Env):
         # self.MonthTick = len(res_data)
         #####
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 20000
         self.budget = self.balance
         self.order_state = 0 # 0 = nop , 1 = buy order , -1 = sell order
         self.order_price = 0

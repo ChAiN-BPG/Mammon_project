@@ -18,10 +18,11 @@ class ForexEnv_test4(gym.Env):
     init data for gym : 
         action space : 
             Hold(0) : do nothing 
-            BUY(1) : order buy 
-            SELL(2) : order sell 
-            CLOSE(3): close all of order 
-            
+            order BUY(1) : 
+            close BUY(3) : 
+            order SELL(2):
+            close SELL(4):
+
         observation space : 
     init data for trading :
         balance  : 200
@@ -36,58 +37,65 @@ class ForexEnv_test4(gym.Env):
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
-            unit = 8 * self.unit_timestep + 1
+            unit = 15 * self.unit_timestep + 1
             self.window_slide = self.length_skip * (self.unit_timestep - 1 )
         else :
             self.window_slide = 1
-            unit = 8 * self.window_slide + 1
-        self.action_space = spaces.Discrete(3) 
+            unit = 15 * self.window_slide + 1
+        self.action_space = spaces.Discrete(5) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
-        df_data = pd.read_excel(dataset,header=None)
+        self.data_yearly = []
+        self.num_data = dataset
+        for x in range(dataset):
+            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
+            df_data = df_data.to_numpy()
+            self.data_yearly.append(df_data)
         # df_data = df_data.iloc[:,0:6]
-        df_data.columns = ['date','time','open','high','low','close','volume']
-        ##  ================ add indicator ==================== 
-        macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
-        ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
-        SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
-        aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
-        ## ====================================================
-        data = {
-            'date' : df_data['date'],
-            'time' : df_data['time'],
-            'open' : df_data['open'],
-            'high' : df_data['high'],
-            'low'  : df_data['low'],
-            'close' : df_data['close'],
-            'volume' : df_data['volume'],
-            'macd' : macd,
-            'macdsignal':macdsignal,
-            'macdhist':  macdhist, 
-            'ATR' : ATR , 
-            'slowk' : slowk, 
-            'slowd' : slowd, 
-            'WILL' : WILL,
-            'SAR' : SAR,
-            'aroondown' : aroondown,
-            'aroonup' : aroonup
-            }
-        all_data = pd.DataFrame(data= data)
-        # all_data = df_data
-        all_data =  all_data.dropna()
-        self.all_data = all_data.to_numpy()
-        self.data_AllTick = len(self.all_data)
-        self.data_column = len(self.all_data[0])
-        self.count_tick = 0
-        ## set datetime 
-        for x in range(self.data_AllTick):
-            date = self.all_data[x,0].split('.')
-            time = self.all_data[x,1].split(':')
-            self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+        # df_data.columns = ['date','time','open','high','low','close','volume']
+        # ##  ================ add indicator ==================== 
+        # macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        # ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        # slowk, slowd = ta.STOCH(df_data['high'], df_data['low'], df_data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        # WILL = ta.WILLR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
+        # SAR = ta.SAR(df_data['high'], df_data['low'], acceleration=0, maximum=0)
+        # aroondown, aroonup = ta.AROON(df_data['high'], df_data['low'], timeperiod=14)
+        # ## ====================================================
+        # data = {
+        #     'date' : df_data['date'],
+        #     'time' : df_data['time'],
+        #     'open' : df_data['open'],
+        #     'high' : df_data['high'],
+        #     'low'  : df_data['low'],
+        #     'close' : df_data['close'],
+        #     'volume' : df_data['volume'],
+        #     'macd' : macd,
+        #     'macdsignal':macdsignal,
+        #     'macdhist':  macdhist, 
+        #     'ATR' : ATR , 
+        #     'slowk' : slowk, 
+        #     'slowd' : slowd, 
+        #     'WILL' : WILL,
+        #     'SAR' : SAR,
+        #     'aroondown' : aroondown,
+        #     'aroonup' : aroonup
+        #     }
+        # all_data = pd.DataFrame(data= data)
+        # # all_data = df_data
+        # all_data =  all_data.dropna()
+        # self.all_data = all_data.to_numpy()
+        # self.data_AllTick = len(self.all_data)
+        # self.data_column = len(self.all_data[0])
+        # self.count_tick = 0
+        # ## set datetime 
+        # for x in range(self.data_AllTick):
+        #     date = self.all_data[x,0].split('.')
+        #     time = self.all_data[x,1].split(':')
+        #     self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
+        self.count_tick = 0
         self.balance = 200
         self.budget = self.balance
         self.amount = 0.05
@@ -100,8 +108,8 @@ class ForexEnv_test4(gym.Env):
         self.margin = 0 # Margin = ราคาในขณะที่เปิด x amount x self.lot / Leverage
         self.margin_free = self.balance # self.balance - self.margin
         self.pre_equity = self.balance
-        self.swap_long = -0.2
-        self.swap_short = -2.2
+        self.swap_long = -5#-0.2
+        self.swap_short = -5#-2.2
         # the order details
         self.order_state = 0 # 0 = nop , 1 = buy order , 2 = sell order
         self.order_price = 0
@@ -115,8 +123,8 @@ class ForexEnv_test4(gym.Env):
         self.high_data = 0
         self.low_data = 0
         self.wrong_move = False
-        self.count_months = [x for x in range (1,13)]
-        random.shuffle(self.count_months)
+        self.count_yearly = [x for x in range (dataset)]
+        random.shuffle(self.count_yearly)
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.all_data[:,1:15])
@@ -147,21 +155,17 @@ class ForexEnv_test4(gym.Env):
 
 
 
-
-
-
-
-    def _order_(self,action):
-        if self.order_state != 0 : 
-            self.wrong_move = True
-            return
-        start_cur = self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
+    def _order_BUY_(self):
+        # if self.order_state != 0 : 
+        #     self.wrong_move = True
+        #     return
+        start_cur = self.close_data + (self.sperad/2) #if action == 1 else self.close_data - (self.sperad/2)
         current_price = start_cur * self.lot * self.amount
         self.order_price = current_price
-        self.order_state = 1 if action ==1 else -1
+        self.order_state = 1 #if action ==1 else -1
         ## collect data // สามารถใส่ info เพื่อออก ไปทำอย่างอื่นได้
         data_date = self.date_data
-        data_type = "BUY" if action == 1 else "SELL"
+        data_type = "BUY" #if action == 1 else "SELL"
         data_tick = start_cur
         data_price = current_price
         data_status = "order"
@@ -172,18 +176,69 @@ class ForexEnv_test4(gym.Env):
         _ = self._calculate_()
 
 
-    def _close_(self,value,action):
-        action = 1 if action ==1 else -1
-        if self.order_state == 0 :
-            self.wrong_move = True
-            return
-        if action == self.order_state :
-            self.wrong_move = True
+
+    def _order_SELL_(self):
+        # if self.order_state != 0 : 
+        #     self.wrong_move = True
+        #     return
+        start_cur = self.close_data - (self.sperad/2) #self.close_data + (self.sperad/2) if action == 1 else self.close_data - (self.sperad/2)
+        current_price = start_cur * self.lot * self.amount
+        self.order_price = current_price
+        self.order_state = -1 #1 if action ==1 else -1
+        ## collect data // สามารถใส่ info เพื่อออก ไปทำอย่างอื่นได้
+        data_date = self.date_data
+        data_type = "SELL"#"BUY" if action == 1 else "SELL"
+        data_tick = start_cur
+        data_price = current_price
+        data_status = "order"
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        ## add margin  
+        self.margin = self.order_price/ self.leverage
+        self.margin_free = self.budget - self.margin
+        _ = self._calculate_()
+
+    def _close_BUY_(self,value):
+        action = 1 #if action ==1 else -1
+        # if self.order_state == 0 :
+        #     self.wrong_move = True
+        #     return
+        # if action == self.order_state :
+        #     self.wrong_move = True
         ## collect data
-        data_type  = "BUY" if self.order_state == 1 else "SELL"
-        end_cur = self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
+        data_type  = "BUY" #if self.order_state == 1 else "SELL"
+        end_cur = self.close_data - (self.sperad/2) #if self.order_state == 1 else self.close_data + (self.sperad/2)
         data_price = end_cur * self.lot * self.amount
-        data_price = data_price + (self.night * self.swap_long) if self.order_state == 1 else data_price + (self.night * self.swap_short)
+        data_price = data_price + (self.night * self.swap_long) #if self.order_state == 1 else data_price + (self.night * self.swap_short)
+        data_status = "close"
+        data_tick = self.close_data
+        data_date = self.date_data
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        ## reset 
+        self.order_state = 0 
+        self.order_price = 0
+        self.count_ordered += 1
+        if value < 0 :
+            self.loss_order += 1
+        else :
+            self.profit_order += 1
+        self.budget += value
+        self.margin_free = self.budget
+        self.equity = self.budget
+        self.margin = 0
+        self.night = 0
+
+    def _close_SELL_(self,value):
+        action = -1 #if action ==1 else -1
+        # if self.order_state == 0 :
+        #     self.wrong_move = True
+        #     return
+        # if action == self.order_state :
+        #     self.wrong_move = True
+        ## collect data
+        data_type  = "SELL"# if self.order_state == 1 else "SELL"
+        end_cur = self.close_data + (self.sperad/2) #self.close_data - (self.sperad/2) if self.order_state == 1 else self.close_data + (self.sperad/2)
+        data_price = end_cur * self.lot * self.amount
+        data_price = data_price + (self.night * self.swap_short) #data_price + (self.night * self.swap_long) if self.order_state == 1 else data_price + (self.night * self.swap_short)
         data_status = "close"
         data_tick = self.close_data
         data_date = self.date_data
@@ -217,15 +272,15 @@ class ForexEnv_test4(gym.Env):
         #     data = self.all_data[self.tick_data - 2 :self.tick_data + 1,2:]
         if self.skip_time :
             res_set = []
-            res_set.append(self.all_data[self.tick_data,2:])
+            res_set.append(self.dataset[self.tick_data,2:])
             for x in range(1,self.unit_timestep):
                 rr = self.tick_data - (self.length_skip * x -1)
-                res = self.all_data[rr,2:]
+                res = self.dataset[rr,2:]
                 res_set.append(res)
             data = res_set
             # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
         else :
-            data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+            data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
 
         ## ========= set one candle ===============
         # data = self.all_data[self.tick_data,2:]
@@ -235,8 +290,7 @@ class ForexEnv_test4(gym.Env):
         for i in range (len(data)):
             res = data[i,:]
             res = self.encoder.transform([res]) 
-            res = res[0,:8]
-            obs_data.append(res)
+            obs_data.append(res[0])
 
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
@@ -290,7 +344,7 @@ class ForexEnv_test4(gym.Env):
         ## check can afford order
         if ((self.budget * self.leverage) < (self.lot * self.amount)):
             episode_over = bool(1)
-        if self.tick_data >= self.data_AllTick :
+        if self.tick_data >= self.yearsTick :
             episode_over = bool(1)
         if self.equity <= -(self.budget) :
             episode_over = bool(1)
@@ -309,23 +363,36 @@ class ForexEnv_test4(gym.Env):
             # self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
             # self.all_data[self.tick_data,0] = self.date_data
-            self.date_data = self.all_data[self.tick_data,0]
-            self.open_data = self.all_data[self.tick_data,2]
-            self.high_data = self.all_data[self.tick_data,3]
-            self.low_data = self.all_data[self.tick_data,4]
-            self.close_data = self.all_data[self.tick_data,5]
+            self.date_data = self.dataset[self.tick_data,0]
+            self.open_data = self.dataset[self.tick_data,2]
+            self.high_data = self.dataset[self.tick_data,3]
+            self.low_data = self.dataset[self.tick_data,4]
+            self.close_data = self.dataset[self.tick_data,5]
             outcome = self._calculate_()
-            if self.tick_data == self.data_AllTick -2 :
-                self._close_(outcome,self.order_state)
+            if self.tick_data == self.yearsTick -2 :
+                if self.order_state == 1 :
+                    self._close_BUY_(outcome)
+                if self.order_state == -1 :
+                    self._close_SELL_(outcome)
+                else :
+                    pass
             if action == 0:
                 pass
-            # elif action == 3 :
-            #     self._close_(outcome)
-            elif self.order_state != 0 : 
-                self._close_(outcome,action)
-                self._order_(action)
+            elif action == 1 and self.order_state == 0 :
+                self._order_BUY_()
+                # reward = self._reward_()
+            elif action == 2 and self.order_state == 0 :
+                self._order_SELL_()
+                # reward = self._reward_()
+            elif self.order_state == 1 and action == 3 : 
+                self._close_BUY_(outcome)
+                # reward = self._reward_()
+            elif self.order_state == -1 and action == 4 : 
+                self._close_SELL_(outcome)
+                # reward = self._reward_()
             else:
-                self._order_(action)
+                # reward = 0
+                pass
             obs = self._next_observation()
             reward = self._reward_()
             self.count_tick += 1
@@ -342,19 +409,20 @@ class ForexEnv_test4(gym.Env):
     def reset(self):
         #### out ####
         self.render()
-        # if len(self.count_months) == 0 :
-        #     self.count_months = [x for x in range (1,13)]
-        #     random.shuffle(self.count_months)
-        # month = self.count_months.pop()
+        if len(self.count_yearly) == 0 :
+            self.count_yearly = [x for x in range (self.num_data)]
+            random.shuffle(self.count_yearly)
+        years = self.count_yearly.pop()
+        self.dataset = self.data_yearly[years]
         # res_data = pd.DataFrame(self.all_data)
-        # res_month = []
+        # res_years = []
         # for x in range(self.data_AllTick):
-        #     res_month.append(res_data.iloc[x,0].month)
-        # res_data['month'] = res_month
-        # res_data = res_data.groupby('month').get_group(month)
+        #     res_years.append(res_data.iloc[x,0].years)
+        # res_data['years'] = res_years
+        # res_data = res_data.groupby('years').get_group(years)
         # res_data = res_data.iloc[:,:-1]
         # self.dataset = res_data.to_numpy()
-        # self.MonthTick = len(res_data)
+        self.yearsTick = len(self.dataset)
         #####
         self.count_tick = 0
         self.balance = 200
@@ -365,8 +433,8 @@ class ForexEnv_test4(gym.Env):
         self.loss_order = 0 
         self.count_ordered = 0
         # self.tick_data =  self.window_slide - 1 ##np.random.random_integers(self.data_AllTick - 1500)
-        if self.tick_data == self.data_AllTick :
-                print("wait")
+        # if self.tick_data == self.data_AllTick :
+        #         print("wait")
         # if self.skip_time :
         #     self.window_slide = self.length_skip * (self.unit_timestep - 1)
         # else:
@@ -500,3 +568,7 @@ class ForexEnv_test4(gym.Env):
 #     )
 # fig.update_layout(xaxis_rangeslider_visible=False)
 # fig.show()
+
+
+
+
