@@ -89,7 +89,7 @@ class ForexEnv_test3(gym.Env):
             self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -162,7 +162,7 @@ class ForexEnv_test3(gym.Env):
         data_tick = start_cur
         data_price = current_price
         data_status = "order"
-        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price,0])
         ## add margin  
         self.margin = self.order_price/ self.leverage
         self.margin_free = self.budget - self.margin
@@ -184,7 +184,7 @@ class ForexEnv_test3(gym.Env):
         data_tick = start_cur
         data_price = current_price
         data_status = "order"
-        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price,0])
         ## add margin  
         self.margin = self.order_price/ self.leverage
         self.margin_free = self.budget - self.margin
@@ -205,7 +205,7 @@ class ForexEnv_test3(gym.Env):
         data_status = "close"
         data_tick = self.close_data
         data_date = self.date_data
-        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price,value])
         ## reset 
         self.order_state = 0 
         self.order_price = 0
@@ -235,7 +235,7 @@ class ForexEnv_test3(gym.Env):
         data_status = "close"
         data_tick = self.close_data
         data_date = self.date_data
-        self.all_order.append([data_date,data_status,data_type,data_tick,data_price])
+        self.all_order.append([data_date,data_status,data_type,data_tick,data_price,value])
         ## reset 
         self.order_state = 0 
         self.order_price = 0
@@ -373,26 +373,27 @@ class ForexEnv_test3(gym.Env):
                 pass
             elif action == 1 and self.order_state == 0 :
                 self._order_BUY_()
-                reward = self._reward_()
+                # reward = self._reward_()
             elif action == 2 and self.order_state == 0 :
                 self._order_SELL_()
-                reward = self._reward_()
+                # reward = self._reward_()
             elif self.order_state == 1 and action == 3 : 
                 self._close_BUY_(outcome)
-                reward = self._reward_()
+                # reward = self._reward_()
             elif self.order_state == -1 and action == 4 : 
                 self._close_SELL_(outcome)
-                reward = self._reward_()
+                # reward = self._reward_()
             else:
-                reward = 0
+                # reward = 0
+                pass
             obs = self._next_observation()
-            # reward = self._reward_()
+            reward = self._reward_()
             self.count_tick += 1
             if self.date_data.hour == 4 and self.order_state != 0:
                 self.night += 1
             self.all_reward += reward
             self.pre_equity = self.equity
-        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget}
+        return obs , reward , episode_over, {'reward' : reward, 'all_reward' : self.all_reward, 'pro_order' : self.profit_order, 'loss_order' : self.loss_order, 'budget' : self.budget,'order':self.all_order}
         
 
 
@@ -416,7 +417,7 @@ class ForexEnv_test3(gym.Env):
         # self.MonthTick = len(res_data)
         #####
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.order_state = 0 # 0 = nop , 1 = buy order , -1 = sell order
         self.order_price = 0
@@ -436,6 +437,7 @@ class ForexEnv_test3(gym.Env):
         self.close_data = 0
         self.high_data = 0
         self.low_data = 0
+        self.all_order = []
         ## add reset margin profit and equity
         self.margin = 0
         self.margin_free = self.balance
