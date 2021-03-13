@@ -324,8 +324,6 @@ class ForexEnv_test(gym.Env):
             ## ========================================= 
             if action == 0:
                 pass
-            # elif action == 3 :
-            #     self._close_(outcome)
             elif self.order_state != 0 : 
                 self._close_(outcome,action)
                 self._order_(action)

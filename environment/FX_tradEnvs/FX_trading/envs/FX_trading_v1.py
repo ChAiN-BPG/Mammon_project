@@ -50,6 +50,15 @@ class ForexEnv_test2(gym.Env):
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             self.data_yearly.append(df_data)
+        ## =========== defind yesrs ===================
+        years = [2014,2017]
+        self.num_data = len(years)
+        for x in years:
+            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
+            df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
+            df_data = df_data.to_numpy()
+            self.data_yearly.append(df_data)
+        ## =========== defind yesrs ===================
         ##  ================ add indicator ==================== 
         # macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
         # ATR = ta.ATR(df_data['high'], df_data['low'], df_data['close'], timeperiod=14)
@@ -119,7 +128,7 @@ class ForexEnv_test2(gym.Env):
         self.high_data = 0
         self.low_data = 0
         self.wrong_move = False
-        self.count_yearly = [x for x in range (dataset)]
+        self.count_yearly = [x for x in range (self.num_data)]
         random.shuffle(self.count_yearly)
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
