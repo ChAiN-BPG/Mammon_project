@@ -6,11 +6,11 @@ import datetime
 import talib as ta 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler , OneHotEncoder
 import pickle
 import random
 
-data = pd.read_excel('data/dataset/XM_EURUSD-2019_H1.xlsx',header=None)
+# data = pd.read_excel('data/dataset/XM_EURUSD-2019_H1.xlsx',header=None)
 # # close_diff = data.iloc[1:,5] - data.iloc[:len(data),5]
 # # close_a = np.array(data.iloc[1:,5])
 # # close_b = np.array(data.iloc[:len(data)-1,5])
@@ -52,16 +52,16 @@ data = pd.read_excel('data/dataset/XM_EURUSD-2019_H1.xlsx',header=None)
 # fig = make_subplots(rows=4, cols=1,
 #                     shared_xaxes=True,
 #                     vertical_spacing=0.02)
-fig = go.Figure()
-# print(data)
-fig.add_trace(
-    go.Candlestick(x=[x for x in range(len(data))],
-        open=data.iloc[:,2],
-        high=data.iloc[:,3],
-        low=data.iloc[:,4],
-        close=data.iloc[:,5])
-        # ,row=1, col=1
-    )
+# fig = go.Figure()
+# # print(data)
+# fig.add_trace(
+#     go.Candlestick(x=[x for x in range(len(data))],
+#         open=data.iloc[:,2],
+#         high=data.iloc[:,3],
+#         low=data.iloc[:,4],
+#         close=data.iloc[:,5])
+#         # ,row=1, col=1
+#     )
 # fig.add_trace(
 #     go.Scatter(x=[x for x in range(len(data))],
 #     y = macd)
@@ -109,8 +109,8 @@ fig.add_trace(
 #     y = close_rela),row=5
 #     , col=1
 #     )
-fig.update_layout(xaxis_rangeslider_visible=False)
-fig.show()
+# fig.update_layout(xaxis_rangeslider_visible=False)
+# fig.show()
 
 # data = [i for i in range (100)]
 # data = np.array(data)
@@ -229,7 +229,7 @@ fig.show()
 
 # all_data = []
 # for x in range(2010,2021):
-#     res = pd.read_excel('data\dataset_indy\XM_EURUSD-'+str(x)+'_H1_indy.xlsx')
+#     res = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx')
 #     res = res.iloc[:,2:]
 #     res = res.to_numpy()
 #     all_data.extend(res)
@@ -244,3 +244,12 @@ fig.show()
 # print(scaler.fit(res1))
 # print(scaler.data_max_)
 # pickle.dump(scaler,open('model/scaler.pickle', 'wb'))
+
+
+data = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_2011.csv',index_col=0)
+enc = OneHotEncoder(handle_unknown='ignore')
+enc.fit(data)
+print(enc.categories_)
+res = enc.transform(data).toarray()
+pickle.dump(enc,open('model/encoder.pickle', 'wb'))
+print(res)

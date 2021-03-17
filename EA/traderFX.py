@@ -3,15 +3,19 @@ import numpy as np
 import talib as ta 
 import sys
 import plotly.graph_objects as go
+import datetime
 from plotly.subplots import make_subplots
 import MetaTrader5 as mt5 
 
 class traderFX:
-    def __init__(self,balance = 200,lot = "standard",leverage = "1:100",spread = 0.00022):
+    def __init__(self,balance = 200,lot = "standard",leverage = "1:100",spread = 0.00022,path_save = "test/test_something.csv"):
         ## ประกาศตัวแปลที่จำเป็นต้องใช้ เงินที่จะใช้ ปร้เภท lot lerverage และ speard
+        self.path = path_save
         self.balance = balance
         self.budget = balance
         self.spread = spread
+        self.swap_long = -0.2
+        self.swap_short = -2.2
         if lot == "standard":
             res = 100000
         elif lot == "mini":
@@ -33,24 +37,27 @@ class traderFX:
 
 
 
-    def get_data(self,currancy = "TEST",timeframe = "H1",start_year = 2004,stop_year = None):
-        if currancy == "TEST":
-            data = pd.read_excel('data/Test_data/sin_dataset.xlsx',header=None)
-        else:
-            data = pd.read_excel('data/TimeFrame/'+ str(start_year)+ '/'+ currancy +'-'+ str(start_year)+'_'+ timeframe +'.xlsx',header=None)
-            data = data.iloc[:,:5]
-        if stop_year != None :
-            for Index in range(start_year+1,stop_year+1):
-                resdata = pd.read_excel('data/TimeFrame/'+ str(Index)+ '/'+ currancy +'-'+ str(Index)+'_'+ timeframe +'.xlsx',header=None)
-                resdata = resdata.iloc[:,:5]
-                data =  data.append(resdata,ignore_index=True)
-        if currancy == "TEST":
-            self.timeframe = "None"
-            self.years = "None"
-        else:
-            self.timeframe = timeframe
-            self.years = str(start_year) + " - " + str(stop_year)
-        data.columns = ["time","open","high","low","close"]
+    def get_data(self,currancy = "EURUSD",timeframe = "H1",start_year = 2011):
+        # if currancy == "TEST":
+        #     data = pd.read_excel('data/Test_data/sin_dataset.xlsx',header=None)
+        # else:
+        data = pd.read_excel('data/dataset/XM_'+ currancy + '-'+ str(start_year) + '_H1.xlsx',header=None)
+        for x in range(len(data)):
+            date = data.iloc[x,0].split('.')
+            time = data.iloc[x,1].split(':')
+            data.iloc[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+        # if stop_year != None :
+        #     for Index in range(start_year+1,stop_year+1):
+        #         resdata = pd.read_excel('data/TimeFrame/'+ str(Index)+ '/'+ currancy +'-'+ str(Index)+'_'+ timeframe +'.xlsx',header=None)
+        #         resdata = resdata.iloc[:,:5]
+        #         data =  data.append(resdata,ignore_index=True)
+        # if currancy == "TEST":
+        #     self.timeframe = "None"
+        #     self.years = "None"
+        # else:
+        self.timeframe = timeframe
+        self.years = str(start_year) 
+        data.columns = ['date','time','open','high','low','close','volume']
         self.currancy = currancy
         self.dataset = data
         self.ready = True
@@ -64,37 +71,45 @@ class traderFX:
     def send_order(self,index,tick,Type,amount = 0.5,order_id = None,TP = None,SL = None):
         if Type == "BUY":
             if (self.budget * self.leverage) >= (amount * self.lot):
-                time = index
+                time = tick[0]
                 value = tick[4] + (self.spread/2)
                 price = (amount * self.lot) * (value)
                 self.order.append([time,Type,amount,value,price,TP,SL])
                 self.open.append([time,Type,amount,value,price])
+                self.step_action = "ORDER_BUY"
             else:
                 print("You cant afford order!! You lose!!")
                 self.end = True
             pass
         elif Type == "SELL":
             if (self.budget * self.leverage) >= (amount * self.lot):
-                time = index
+                time = tick[0]
                 value = tick[4] - (self.spread/2)
                 price = (amount * self.lot) * (value)
                 self.order.append([time,Type,amount,value,price,TP,SL])
                 self.open.append([time,Type,amount,value,price])
+                self.step_action = "ORDER_SELL"
             else:
                 print("You cant afford order!! You lose!!")
                 self.end = True
             pass
         elif Type == "close" and order_id != None:
             mark = self.order.pop(order_id)
+            spending_time = mark[0] - tick[0]
+            night = 0
+            if spending_time.days > 0 or spending_time.seconds >= 3600 :
+                night = round(((spending_time.days * 3600) + spending_time.seconds)/3600 )
             if mark[1] == "BUY":
                 value = tick[4] - (self.spread/2)
                 price = (mark[2] * self.lot) * value
-                total = price - mark[4]
+                total = price - mark[4] - (night * self.swap_long)
+                self.step_action = "CLOSE_BUY"
                 pass
             elif mark[1] == "SELL":
                 value = tick[4] + (self.spread/2)
                 price = (mark[2] * self.lot) * value
-                total = mark[4] - price
+                total = mark[4] - price - (night * self.swap_short)
+                self.step_action = "CLOSE_SELL"
                 pass
             if total > 0:
                 self.profit += total
@@ -122,15 +137,19 @@ class traderFX:
         self.order = []
         self.open = []
         self.close = []
-        self.transection = []
+        self.transection = [] 
+        self.action = []
         self.profit = 0
         self.loss = 0
         Strategy = strategy(self.dataset)
         
         for index,tick in self.dataset.iterrows() :
+            self.step_action = "HOLD"
             if index == 0 :
+                self.action.append(self.step_action)
                 continue
             Strategy.next(index,tick)
+            self.action.append(self.step_action)
             if self.end : break
             percentage = (index/len(self.dataset))*100
             percentage = round(percentage,2)
@@ -154,8 +173,28 @@ class traderFX:
         print("Gross_Porfit : "+str(round(self.profit,2))+ "    " + "Gross_Loss : "+str(round(self.loss,2))+ "    " + "Total net profit : " + str(round(self.loss + self.profit,2)) + "    " + "profit factor : " + str(round(abs(self.profit/self.loss),2)) )
         print("Total_Trade : " + str(len(self.transection)) + "    " + "Profit_trade : " + str(len(T_profit)) + "(" +str(round(profit_per,2))+ "%)"+ "    " + "Loss_trade : " + str(len(T_loss)) + "(" +str(round(loss_per,2))+ "%)" )
         print("==================================================================================")
-        self.plot_graph()
+        # self.plot_graph()
+        # self.write_data(round(self.loss + self.profit,2),len(T_profit),len(T_loss))
+        self.write_action()
         
+
+
+
+
+
+
+    def write_action(self):
+            res = pd.DataFrame(self.action)
+            res.to_csv(self.path)
+            pass
+
+    def write_data(self,Profit,P_order,L_order):
+        res = [self.years,Profit,str(P_order)+" ("+str(round((P_order/len(self.transection)) * 100,1))+"%)",str(L_order)+" ("+str(round((L_order/len(self.transection)) * 100,1))+"%)"]
+        res = pd.DataFrame([res])
+        res.columns = ["year","Profit","P_order","L_order"]
+        res.to_csv(self.path)
+        pass
+
 
     def plot_graph(self):
         opendata = pd.DataFrame(self.open)
@@ -245,7 +284,6 @@ class traderFX:
 
 
     def tailing_stop(self):
-
         pass
 
     def set_indicator(self,list_ind):

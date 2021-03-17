@@ -4,112 +4,121 @@ import talib as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import MetaTrader5 as mt5 
-
-def Crossover(value1,value2,value3,value4):
-    signal = bool(0)
-    if value1 > value3 and value2 < value4:
-        signal = bool(1)
-    return signal
+from datetime import datetime
 
 
-data = pd.read_excel('data/TimeFrame/2004/GBPUSD-2004_H1.xlsx',header=None)
-data = data.iloc[:,:5]
-data.columns = ["time","open","high","low","close"]
-ema12 = ta.SMA(data.loc[:,"close"],12)
-ema36 = ta.SMA(data.loc[:,"close"],36)
-# adx14 = ta.ADX(data.loc[:,"high"],data.loc[:,"low"],data.loc[:,"close"],7)
-
-answer = [None] * len(data)
-answer2 = [None] * len(data)
-for index,tick in data.iterrows() :
-    if index == 0:
-        continue
-    if Crossover(ema36[index-1],ema36[index],ema12[index-1],ema12[index]):
-        answer[index] = data.loc[index,"close"] + 0.00011
-    if Crossover(ema12[index-1],ema12[index],ema36[index-1],ema36[index]):
-        answer2[index] = data.loc[index,"close"] - 0.00011
-
-fig =  go.Figure()
-fig.add_trace(
-    go.Candlestick(x=[x for x in range(len(data)) ],
-        open=data.loc[:,"open"],
-        high=data.loc[:,"high"],
-        low=data.loc[:,"low"],
-        close=data.loc[:,"close"])
-)
-fig.add_trace(
-    go.Scatter(
-        x=[x for x in range(len(data)) ],
-        y = ema12,
-        mode="lines",
-        name = "ema12"
-    )
-)
-fig.add_trace(
-    go.Scatter(
-        x=[x for x in range(len(data)) ],
-        y = ema36,
-        mode="lines",
-        name = "ema36"
-    )
-)
-fig.add_trace(
-    go.Scatter(
-        x=[x for x in range(len(data)) ],
-        y = answer,
-        mode="markers",
-        name = "answer"
-    )
-)
-fig.add_trace(
-    go.Scatter(
-        x = [x for x in range (len(data))],
-        y = answer2,
-        mode = "markers",
-        name = "anwer2"
-    )
-)
-fig.update_layout(xaxis_rangeslider_visible=False)
-fig.show()
+date1 = datetime(2020, 12, 30,9,40)
+date2 = datetime(2020, 11, 30,8,40)
+answer = date1 - date2
+print(answer.seconds)
+print(answer.days)
 
 
+# def Crossover(value1,value2,value3,value4):
+#     signal = bool(0)
+#     if value1 > value3 and value2 < value4:
+#         signal = bool(1)
+#     return signal
 
 
-### ============================ save ==============================
+# data = pd.read_excel('data/TimeFrame/2004/GBPUSD-2004_H1.xlsx',header=None)
+# data = data.iloc[:,:5]
+# data.columns = ["time","open","high","low","close"]
+# ema12 = ta.SMA(data.loc[:,"close"],12)
+# ema36 = ta.SMA(data.loc[:,"close"],36)
+# # adx14 = ta.ADX(data.loc[:,"high"],data.loc[:,"low"],data.loc[:,"close"],7)
+
+# answer = [None] * len(data)
+# answer2 = [None] * len(data)
+# for index,tick in data.iterrows() :
+#     if index == 0:
+#         continue
+#     if Crossover(ema36[index-1],ema36[index],ema12[index-1],ema12[index]):
+#         answer[index] = data.loc[index,"close"] + 0.00011
+#     if Crossover(ema12[index-1],ema12[index],ema36[index-1],ema36[index]):
+#         answer2[index] = data.loc[index,"close"] - 0.00011
+
+# fig =  go.Figure()
+# fig.add_trace(
+#     go.Candlestick(x=[x for x in range(len(data)) ],
+#         open=data.loc[:,"open"],
+#         high=data.loc[:,"high"],
+#         low=data.loc[:,"low"],
+#         close=data.loc[:,"close"])
+# )
+# fig.add_trace(
+#     go.Scatter(
+#         x=[x for x in range(len(data)) ],
+#         y = ema12,
+#         mode="lines",
+#         name = "ema12"
+#     )
+# )
+# fig.add_trace(
+#     go.Scatter(
+#         x=[x for x in range(len(data)) ],
+#         y = ema36,
+#         mode="lines",
+#         name = "ema36"
+#     )
+# )
+# fig.add_trace(
+#     go.Scatter(
+#         x=[x for x in range(len(data)) ],
+#         y = answer,
+#         mode="markers",
+#         name = "answer"
+#     )
+# )
+# fig.add_trace(
+#     go.Scatter(
+#         x = [x for x in range (len(data))],
+#         y = answer2,
+#         mode = "markers",
+#         name = "anwer2"
+#     )
+# )
+# fig.update_layout(xaxis_rangeslider_visible=False)
+# fig.show()
 
 
-    ## ============================== function core ===================================
-    def __init__(self,balance = 200,lot = "standard",leverage = "1:100",spread = 0.00022):
-        """
-        this class use for simulate forex trading 
-            list of paramiter:
-            1.balance : the budget you want to trade [default by 200]
-            2.lot : - 100000 = "standard"
-                    - 10000  = "mini"
-                    - 1000   = "micro"
-                    - 100    = "nano"
-            3.leverage : the amount of money that broker gave you [default by 1:100]
-            4. spread : the amount of money that you have to pay more [default by 0.00022]
-            5. mt5_service : you can link with metatrader5 by set True [default by False]
-        """
-        self.end = False
-        self.budget = balance
-        self.balance = balance
-        self.spread = spread
-        self.ready = False
-        res = leverage.split(":")
-        self.leverage =  int(res[1])
-        if lot == "standard":
-            res = 100000
-        elif lot == "mini":
-            res = 10000
-        elif lot == "micro":
-            res = 1000
-        elif lot == "nano":
-            res = 100
-        self.lot = res
-        ## ========== save indicator ===============
-        self.last_cross = None
+
+
+# ### ============================ save ==============================
+
+
+#     ## ============================== function core ===================================
+#     def __init__(self,balance = 200,lot = "standard",leverage = "1:100",spread = 0.00022):
+#         """
+#         this class use for simulate forex trading 
+#             list of paramiter:
+#             1.balance : the budget you want to trade [default by 200]
+#             2.lot : - 100000 = "standard"
+#                     - 10000  = "mini"
+#                     - 1000   = "micro"
+#                     - 100    = "nano"
+#             3.leverage : the amount of money that broker gave you [default by 1:100]
+#             4. spread : the amount of money that you have to pay more [default by 0.00022]
+#             5. mt5_service : you can link with metatrader5 by set True [default by False]
+#         """
+#         self.end = False
+#         self.budget = balance
+#         self.balance = balance
+#         self.spread = spread
+#         self.ready = False
+#         res = leverage.split(":")
+#         self.leverage =  int(res[1])
+#         if lot == "standard":
+#             res = 100000
+#         elif lot == "mini":
+#             res = 10000
+#         elif lot == "micro":
+#             res = 1000
+#         elif lot == "nano":
+#             res = 100
+#         self.lot = res
+#         ## ========== save indicator ===============
+#         self.last_cross = None
         ## ========= for ploting ===================
 
 

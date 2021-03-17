@@ -89,7 +89,7 @@ class ForexEnv_test(gym.Env):
             self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
-        self.balance = 200000
+        self.balance = 200
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -319,8 +319,8 @@ class ForexEnv_test(gym.Env):
             if self.tick_data == self.data_AllTick -2 :
                 self._close_(outcome,self.order_state)
             ## ============= stop_loss =================
-            if outcome <= -20 :
-                self._close_(outcome,self.order_state)
+            # if outcome <= -80 :
+            #     self._close_(outcome,self.order_state)
             ## ========================================= 
             if action == 0:
                 pass
@@ -329,6 +329,18 @@ class ForexEnv_test(gym.Env):
                 self._order_(action)
             else:
                 self._order_(action)
+            # =========== sesei test =====================
+            # if self.order_state == 0 and action != 0:
+            #     self._order_(action)
+            # elif self.order_state == 1 and action == 2: 
+            #     self._close_(outcome,action)
+            #     self._order_(action)
+            # elif self.order_state == -1 and action == 1:  
+            #     self._close_(outcome,action)
+            #     self._order_(action)
+            # else:
+            #     pass
+            # ============================================
             obs = self._next_observation()
             reward = self._reward_()
             self.count_tick += 1
@@ -344,7 +356,7 @@ class ForexEnv_test(gym.Env):
 
     def reset(self):
         #### out ####
-        self.render()
+        # self.render()
         # if len(self.count_months) == 0 :
         #     self.count_months = [x for x in range (1,13)]
         #     random.shuffle(self.count_months)
@@ -360,7 +372,7 @@ class ForexEnv_test(gym.Env):
         # self.MonthTick = len(res_data)
         #####
         self.count_tick = 0
-        self.balance = 200000
+        self.balance = 200
         self.budget = self.balance
         self.order_state = 0 # 0 = nop , 1 = buy order , -1 = sell order
         self.order_price = 0

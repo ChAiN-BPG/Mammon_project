@@ -67,8 +67,8 @@ for i in range(1):
         print("reward : " + str(infos['reward']))
         print("All_reward : " + str(infos['all_reward']))
         print("+++++++++++++++++++++++++")
-        data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
-        record.append(data)
+        # data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
+        # record.append(data)
         if done:
             data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
             record.append(data)

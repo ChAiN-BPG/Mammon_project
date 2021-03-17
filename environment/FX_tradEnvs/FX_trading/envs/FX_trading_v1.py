@@ -31,33 +31,44 @@ class ForexEnv_test2(gym.Env):
         sperad   : 0.00022
     """
     def __init__(self,dataset,model):
-        self.skip_time = True
+        self.skip_time = False
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
-            unit = 15 * self.unit_timestep + 1
+            unit = 15 * self.unit_timestep + 1 
             self.window_slide = self.length_skip * (self.unit_timestep - 1 )
         else :
             self.window_slide = 1
-            unit = 15 * self.window_slide + 1
+            unit = 15 * self.window_slide + 1 + 10
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
         self.data_yearly = []
+        self.data_act_tr = []
+        self.data_act_tb = []
         self.num_data = dataset
         for x in range(dataset):
+            # df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
+            ## ================== input trade system action ==================
+            df_action_tr = pd.read_csv('/content/Mammon_project/data/trade_data/Trade_rider/action_Trade_rider_'+str(2011 + x)+'.csv',index_col=0)
+            df_action_tr = df_action_tr.iloc[-(len(df_data)):,:]
+            df_action_tb = pd.read_csv('/content/Mammon_project/data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2011 + x)+'.csv',index_col=0)
+            df_action_tb = df_action_tb.iloc[-(len(df_data)):,:]
+            self.data_act_tr.append(df_action_tr)
+            self.data_act_tb.append(df_action_tb)
+            ## ===============================================================
             self.data_yearly.append(df_data)
         ## =========== defind yesrs ===================
-        years = [2014,2017]
-        self.num_data = len(years)
-        for x in years:
-            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
-            df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
-            df_data = df_data.to_numpy()
-            self.data_yearly.append(df_data)
+        # years = [2014,2017]
+        # self.num_data = len(years)
+        # for x in years:
+        #     df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
+        #     df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
+        #     df_data = df_data.to_numpy()
+        #     self.data_yearly.append(df_data)
         ## =========== defind yesrs ===================
         ##  ================ add indicator ==================== 
         # macd, macdsignal, macdhist = ta.MACD(df_data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
@@ -134,6 +145,7 @@ class ForexEnv_test2(gym.Env):
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.all_data[:,1:15])
         self.encoder = pickle.load(open(model, 'rb'))
+        self.onehot = pickle.load(open('/content/Mammon_project/model/encoder.pickle', 'rb'))
         # =========== render data ===============
         self.profit_order = 0
         self.loss_order = 0 
@@ -239,6 +251,8 @@ class ForexEnv_test2(gym.Env):
         #     # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
         else :
             data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+            act_tr = self.act_tr[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
+            act_tb = self.act_tb[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
 
         ## ========= set one candle ===============
         # data = self.all_data[self.tick_data,2:]
@@ -249,10 +263,15 @@ class ForexEnv_test2(gym.Env):
             res = data[i,:]
             res = self.encoder.transform([res]) 
             obs_data.append(res[0])
-
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
         obs_data = obs_data.flatten()
+        ## ======== add action ===============
+        res1 = self.onehot.transform(act_tr).toarray()
+        res2 = self.onehot.transform(act_tb).toarray()
+        obs_data = np.append(obs_data,res1)
+        obs_data = np.append(obs_data,res2)
+        ## ===================================
         obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
         # out = 0
@@ -359,6 +378,8 @@ class ForexEnv_test2(gym.Env):
             random.shuffle(self.count_yearly)
         years = self.count_yearly.pop()
         self.dataset = self.data_yearly[years]
+        self.act_tb = self.data_act_tb[years]
+        self.act_tr = self.data_act_tr[years]
         # res_data = pd.DataFrame(self.all_data)
         # res_years = []
         # for x in range(self.data_AllTick):

@@ -1,7 +1,8 @@
+from sys import path
 import traderFX as TF
 
-test = TF.traderFX(balance=200,lot= "mini")
-test.get_data(currancy="GBPUSD",start_year=2006)
+test = TF.traderFX(balance=200000,lot= "standard",path_save = "data/trade_data/Trade_rider/action_Trade_rider_2019.csv")
+test.get_data(start_year = 2019)
 test.last_cross = None
 # # print(test.balance)
 # # print(test.budget)

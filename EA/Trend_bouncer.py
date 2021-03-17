@@ -1,7 +1,7 @@
 import traderFX as TF
 
-test = TF.traderFX(balance=200,lot= "mini")
-test.get_data(currancy="GBPUSD",start_year=2016)
+test = TF.traderFX(balance=200000,lot= "standard",path_save = "data/trade_data/Trend_bouncer/action_Trend_bouncer_2019.csv")
+test.get_data(start_year = 2019)
 test.pre_nignal = None
 # # print(test.balance)
 # # print(test.budget)
