@@ -50,15 +50,15 @@ class ForexEnv_test2(gym.Env):
         self.num_data = dataset
         for x in range(dataset):
             # df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
-            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             ## ================== input trade system action ==================
-            df_action_tr = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_'+str(2011 + x)+'.csv',index_col=0)
+            df_action_tr = pd.read_csv('/content/Mammon_project/data/trade_data/Trade_rider/action_Trade_rider_'+str(2011 + x)+'.csv',index_col=0)
             df_action_tr = df_action_tr.iloc[-(len(df_data)):,:]
-            df_action_tb = pd.read_csv('data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2011 + x)+'.csv',index_col=0)
+            df_action_tb = pd.read_csv('/content/Mammon_project/data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2011 + x)+'.csv',index_col=0)
             df_action_tb = df_action_tb.iloc[-(len(df_data)):,:]
-            df_action_ema = pd.read_csv('data/trade_data/simple_ema/action_Simple_ema_'+str(2011 + x)+'.csv',index_col=0)
+            df_action_ema = pd.read_csv('/content/Mammon_project/data/trade_data/simple_ema/action_Simple_ema_'+str(2011 + x)+'.csv',index_col=0)
             df_action_ema = df_action_ema.iloc[-(len(df_data)):,:]
             self.data_act_tr.append(df_action_tr)
             self.data_act_tb.append(df_action_tb)
@@ -149,7 +149,7 @@ class ForexEnv_test2(gym.Env):
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.all_data[:,1:15])
         self.encoder = pickle.load(open(model, 'rb'))
-        self.onehot = pickle.load(open('model/encoder.pickle', 'rb'))
+        self.onehot = pickle.load(open('/content/Mammon_project/model/encoder.pickle', 'rb'))
         # =========== render data ===============
         self.profit_order = 0
         self.loss_order = 0 
