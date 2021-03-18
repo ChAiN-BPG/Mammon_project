@@ -38,18 +38,18 @@ agent = dict(
         network=[
         # dict(type='gru', size=20,horizon = 1)
         # dict(type='dense', size=20, activation='tanh')
-        dict(type='dense',size=35, activation='relu'),
-        dict(type='dense',size=50, activation='relu'),
-        dict(type='dense',size=50, activation='relu'),
+        dict(type='dense',size=45, activation='relu'),
+        dict(type='dense',size=75, activation='relu'),
+        dict(type='dense',size=75, activation='relu'),
         # dict(type='dense',size=50, activation='tanh'),
-        dict(type='dense',size=35, activation='relu')
+        dict(type='dense',size=45, activation='relu')
         # dict(type='dense',size=10, activation='sigmoid')
         # dict(type='lstm', size=10,horizon = 1)
     ],
         batch_size=5, learning_rate=3e-4,max_episode_timesteps = 7000,
         # Save agent every 10 updates and keep the 5 most recent checkpoints
-        summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summary_model_3act_5data_actT'),
-        saver=dict(directory='/content/drive/MyDrive/project_mammon/test/save_model_3act_5data_actT', frequency=10, max_checkpoints=12),
+        # summarizer = dict(directory= '/content/drive/MyDrive/project_mammon/test/summary_model_3act_5data_actT'),
+        # saver=dict(directory='/content/drive/MyDrive/project_mammon/test/save_model_3act_5data_actT', frequency=10, max_checkpoints=12),
         memory = 60000
     )
 runner = Runner(agent=agent, environment=environment)
@@ -60,10 +60,10 @@ runner.run(num_episodes=1200)
 runner.close()
 
 
-# env = gym.make('FXTrading-v0')
+# env = gym.make('FXTrading-v1')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_2014-17"), format='checkpoint')
+# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_5data_actT"), format='checkpoint')
 # record = []
 # for i in range(10):
 #     observation = env.reset()
@@ -97,7 +97,7 @@ runner.close()
 # record = pd.DataFrame(record)
 # record_order = pd.DataFrame(order)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
-# record_order.columns = ["data_date","data_status","data_type","data_tick","data_price","value"]
-# record.to_csv('test/EUR_USD/test/record_model_3act_14+17_2011.csv',index=False)
+# # record_order.columns = ["data_date","data_status","data_type","data_tick","data_price","value"]
+# record.to_csv('test/EUR_USD/test/record_model_3act_5data_actT_2019.csv',index=False)
 # # record.to_csv('test/EUR_USD/test/record_5act_test_5data_2019.csv',index=False)
 # # record_order.to_csv('test/EUR_USD/test/record_order_3act_5data_sensei_2019.csv',index=False)

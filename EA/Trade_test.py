@@ -1,6 +1,6 @@
 import traderFX as TF
 
-rez = TF.traderFX(balance=200000,lot= "standard",path_save = "test/test_simple_SMA_2019.csv")
+rez = TF.traderFX(balance=200000,lot= "standard",path_save = "data/trade_data/Trade_rider/action_Simple_ema_2019.csv")
 rez.get_data(start_year = 2019)
 class test_trade():
     def __init__(self,index):

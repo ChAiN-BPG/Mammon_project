@@ -33,7 +33,7 @@ class ForexEnv_test3(gym.Env):
     """
     ## this emvirpnment has no spread and magin calculate // todo
     def __init__(self,dataset,model):
-        self.skip_time = False
+        self.skip_time = True
         self.length_skip = 12
         self.unit_timestep = 3
         if self.skip_time :
