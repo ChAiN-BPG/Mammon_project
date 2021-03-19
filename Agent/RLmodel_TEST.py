@@ -63,7 +63,7 @@ runner.close()
 # env = gym.make('FXTrading-v1')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_5data_actT"), format='checkpoint')
+# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_5data_actall"), format='checkpoint')
 # record = []
 # for i in range(10):
 #     observation = env.reset()
@@ -98,6 +98,6 @@ runner.close()
 # record_order = pd.DataFrame(order)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
 # # record_order.columns = ["data_date","data_status","data_type","data_tick","data_price","value"]
-# record.to_csv('test/EUR_USD/test/record_model_3act_5data_actT_2019.csv',index=False)
+# record.to_csv('test/EUR_USD/test/record_model_3act_5data_actall_2019.csv',index=False)
 # # record.to_csv('test/EUR_USD/test/record_5act_test_5data_2019.csv',index=False)
 # # record_order.to_csv('test/EUR_USD/test/record_order_3act_5data_sensei_2019.csv',index=False)

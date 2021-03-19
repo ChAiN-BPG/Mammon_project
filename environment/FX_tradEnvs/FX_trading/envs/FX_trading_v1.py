@@ -39,7 +39,7 @@ class ForexEnv_test2(gym.Env):
             self.window_slide = self.length_skip * (self.unit_timestep - 1 )
         else :
             self.window_slide = 1
-            unit = 15 * self.window_slide + 1 + 15
+            unit = 5 * self.window_slide + 1 + 15
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
@@ -49,7 +49,7 @@ class ForexEnv_test2(gym.Env):
         self.data_act_ema = []
         self.num_data = dataset
         for x in range(dataset):
-            # df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            # df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
@@ -69,7 +69,7 @@ class ForexEnv_test2(gym.Env):
         # years = [2011,2011]
         # self.num_data = len(years)
         # for x in years:
-        #     df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
+        #     df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
         #     df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
         #     df_data = df_data.to_numpy()
         #     self.data_yearly.append(df_data)
@@ -271,6 +271,8 @@ class ForexEnv_test2(gym.Env):
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
         obs_data = obs_data.flatten()
+        ## ======== price data only ==========
+        obs_data = obs_data[:5]
         ## ======== add action ===============
         res1 = self.onehot.transform(act_tr).toarray()
         res2 = self.onehot.transform(act_tb).toarray()
@@ -355,6 +357,10 @@ class ForexEnv_test2(gym.Env):
             outcome = self._calculate_()
             if self.tick_data == self.yearsTick -2 :
                 self._close_(outcome,self.order_state)
+            ## ============= stop_loss =================
+            # if outcome <= -80 :
+            #     self._close_(outcome,self.order_state)
+            ## ========================================= 
             if action == 0:
                 pass
             # elif action == 3 :
