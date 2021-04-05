@@ -31,8 +31,8 @@ register(
 register(
     id='FXTrading-v3',
     entry_point='FX_trading.envs:ForexEnv_test4',
-    kwargs={'dataset': 3,
-            'model' : '/content/Mammon_project/model/scaler.pickle'}
+    kwargs={'dataset': 1,
+            'model' : 'model/scaler.pickle'}
 )
 
 register(

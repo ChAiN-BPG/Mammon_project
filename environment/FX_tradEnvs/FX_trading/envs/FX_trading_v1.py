@@ -40,34 +40,34 @@ class ForexEnv_test2(gym.Env):
         else :
             self.window_slide = 1
             # unit = 15 * self.window_slide + 1 + 15
-            unit = 10 * self.window_slide  + 15
+            unit = 15 * self.window_slide  + 10 +1
         self.action_space = spaces.Discrete(3) 
         self.observation_space = spaces.Box(low=-1, high=1, shape=(unit,), dtype=np.float32) ## แก้ observation with no preprocess 
         # init dataset 
         self.data_yearly = []
         self.data_act_tr = []
         self.data_act_tb = []
-        self.data_act_ema = []
+        # self.data_act_ema = []
         self.num_data = dataset
         for x in range(dataset):
-            # df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2015 + x)+'_H1_indy.xlsx',header=None)
-            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2015 + x)+'_H1_indy.xlsx',header=None)
+            # df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2016 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2016 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             ## ================== input trade system action ==================
-            df_action_tr = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_'+str(2015 + x)+'.csv',index_col=0)
+            df_action_tr = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_'+str(2016 + x)+'.csv',index_col=0)
             df_action_tr = df_action_tr.iloc[-(len(df_data)):,:]
-            df_action_tb = pd.read_csv('data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2015 + x)+'.csv',index_col=0)
+            df_action_tb = pd.read_csv('data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2016 + x)+'.csv',index_col=0)
             df_action_tb = df_action_tb.iloc[-(len(df_data)):,:]
-            df_action_ema = pd.read_csv('data/trade_data/simple_ema/action_Simple_ema_'+str(2015 + x)+'.csv',index_col=0)
-            df_action_ema = df_action_ema.iloc[-(len(df_data)):,:]
+            # df_action_ema = pd.read_csv('data/trade_data/simple_ema/action_Simple_ema_'+str(2016 + x)+'.csv',index_col=0)
+            # df_action_ema = df_action_ema.iloc[-(len(df_data)):,:]
             self.data_act_tr.append(df_action_tr)
             self.data_act_tb.append(df_action_tb)
-            self.data_act_ema.append(df_action_ema)
+            # self.data_act_ema.append(df_action_ema)
             ## ===============================================================
             self.data_yearly.append(df_data)
         ## =========== defind yesrs ===================
-        # years = [2015,2015]
+        # years = [2016,2016]
         # self.num_data = len(years)
         # for x in years:
         #     df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(x)+'_H1_indy.xlsx',header=None)
@@ -102,22 +102,22 @@ class ForexEnv_test2(gym.Env):
         #     'aroondown' : aroondown,
         #     'aroonup' : aroonup
         #     }
-        # all_data = pd.DataFrame(data= data)
-        # all_data = df_data
-        # all_data =  all_data.dropna()
-        # self.all_data = all_data.to_numpy()
-        # self.data_AllTick = len(self.all_data)
-        # self.data_column = len(self.all_data[0])
+        # dataset = pd.DataFrame(data= data)
+        # dataset = df_data
+        # dataset =  dataset.dropna()
+        # self.dataset = dataset.to_numpy()
+        # self.data_AllTick = len(self.dataset)
+        # self.data_column = len(self.dataset[0])
         # self.count_tick = 0
         # ## set datetime 
         # for x in range(self.data_AllTick):
-        #     date = self.all_data[x,0].split('.')
-        #     time = self.all_data[x,1].split(':')
-        #     self.all_data[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
+        #     date = self.dataset[x,0].split('.')
+        #     time = self.dataset[x,1].split(':')
+        #     self.dataset[x,0] = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.years),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -148,7 +148,7 @@ class ForexEnv_test2(gym.Env):
         random.shuffle(self.count_yearly)
         # =========== normalize data ============
         # scaler = MinMaxScaler(feature_range=(-1,1))
-        # scaler.fit(self.all_data[:,1:15])
+        # scaler.fit(self.dataset[:,1:15])
         self.encoder = pickle.load(open(model, 'rb'))
         self.onehot = pickle.load(open('model/encoder.pickle', 'rb'))
         # =========== render data ===============
@@ -241,10 +241,10 @@ class ForexEnv_test2(gym.Env):
         observation = [data(t),order_state,order_price]
         """
         # if self.tick_data < 2 :
-        #     data = self.all_data[self.tick_data,2:]
+        #     data = self.dataset[self.tick_data,2:]
         #     data = np.array([data,data,data])
         # else :
-        #     data = self.all_data[self.tick_data - 2 :self.tick_data + 1,2:]
+        #     data = self.dataset[self.tick_data - 2 :self.tick_data + 1,2:]
         if self.skip_time :
             res_set = []
             res_set.append(self.dataset[self.tick_data,2:])
@@ -253,22 +253,23 @@ class ForexEnv_test2(gym.Env):
                 res = self.dataset[rr,2:]
                 res_set.append(res)
             data = res_set
-        #     # data = self.all_data[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
+        #     # data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
         else :
             data = self.dataset[self.tick_data - (self.window_slide - 1) : self.tick_data + 1,2:]
             act_tr = self.act_tr[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
             act_tb = self.act_tb[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
-            act_ema = self.act_ema[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
+            # act_ema = self.act_ema[self.tick_data - (self.window_slide - 1) : self.tick_data + 1]
 
         ## ========= set one candle ===============
-        # data = self.all_data[self.tick_data,2:]
+        # data = self.dataset[self.tick_data,2:]
         data = np.array(data)
         # obs_data = data
         obs_data = []
         for i in range (len(data)):
             res = data[i,:]
             res = self.encoder.transform([res]) 
-            obs_data.append(res[0][5:])
+            # obs_data.append(res[0][5:])
+            obs_data.append(res[0])
         # obs_data = self.encoder.transform(data) 
         obs_data = np.array(obs_data)
         obs_data = obs_data.flatten()
@@ -277,12 +278,12 @@ class ForexEnv_test2(gym.Env):
         ## ======== add action ===============
         res1 = self.onehot.transform(act_tr).toarray()
         res2 = self.onehot.transform(act_tb).toarray()
-        res3 = self.onehot.transform(act_ema).toarray()
+        # res3 = self.onehot.transform(act_ema).toarray()
         obs_data = np.append(obs_data,res1)
         obs_data = np.append(obs_data,res2)
-        obs_data = np.append(obs_data,res3)
+        # obs_data = np.append(obs_data,res3)
         ## ===================================
-        # obs_data = np.append(obs_data,self.order_state)
+        obs_data = np.append(obs_data,self.order_state)
         obs_data = obs_data.astype('float32')
         # out = 0
         # if self.order_state == 2: out = -1
@@ -343,13 +344,13 @@ class ForexEnv_test2(gym.Env):
             # Date = date.iloc[0].split('.')
 # time = date.iloc[1].split(':')
 # asss = datetime.datetime(int(Date[0]),int(Date[1]),int(Date[2]),int(time[0]),int(time[1]))
-            # date = self.all_data[self.tick_data,0].split('.')
-            # date = self.all_data[self.tick_data,0]
+            # date = self.dataset[self.tick_data,0].split('.')
+            # date = self.dataset[self.tick_data,0]
             # date = date.split('.')
-            # time = self.all_data[self.tick_data,1].split(':')
+            # time = self.dataset[self.tick_data,1].split(':')
             # self.date_data = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(time[0]),int(time[1]))
             # self.date_data = datetime.datetime(int(date.year),int(date.years),int(date.day),int(time[0]),int(time[1]))
-            # self.all_data[self.tick_data,0] = self.date_data
+            # self.dataset[self.tick_data,0] = self.date_data
             self.date_data = self.dataset[self.tick_data,0]
             self.open_data = self.dataset[self.tick_data,2]
             self.high_data = self.dataset[self.tick_data,3]
@@ -394,8 +395,8 @@ class ForexEnv_test2(gym.Env):
         self.dataset = self.data_yearly[years]
         self.act_tb = self.data_act_tb[years]
         self.act_tr = self.data_act_tr[years]
-        self.act_ema = self.data_act_ema[years]
-        # res_data = pd.DataFrame(self.all_data)
+        # self.act_ema = self.data_act_ema[years]
+        # res_data = pd.DataFrame(self.dataset)
         # res_years = []
         # for x in range(self.data_AllTick):
         #     res_years.append(res_data.iloc[x,0].years)
@@ -406,7 +407,7 @@ class ForexEnv_test2(gym.Env):
         self.yearsTick = len(self.dataset)
         #####
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.order_state = 0 # 0 = nop , 1 = buy order , -1 = sell order
         self.order_price = 0
@@ -488,11 +489,11 @@ class ForexEnv_test2(gym.Env):
             buy_ordered = []
         fig_data = go.Figure()
         fig_data.add_trace(
-            go.Candlestick(x=self.all_data[:,0],
-                open=self.all_data[:,2],
-                high=self.all_data[:,3],
-                low=self.all_data[:,4],
-                close=self.all_data[:,5])
+            go.Candlestick(x=self.dataset[:,0],
+                open=self.dataset[:,2],
+                high=self.dataset[:,3],
+                low=self.dataset[:,4],
+                close=self.dataset[:,5])
         )
         fig_data.add_trace(
             go.Scatter(

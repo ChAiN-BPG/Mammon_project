@@ -29,7 +29,7 @@ def finished_ep(r,_):
         pass
     return True
 
-environment = OpenAIGym(level='FXTrading-v3',visualize=False)
+environment = OpenAIGym(level='FXTrading-v0',visualize=False)
 # # agent = Agent.load(directory='test/testmodel_saver', format='checkpoint')
 agent = dict(
         
@@ -63,9 +63,9 @@ runner.close()
 # env = gym.make('FXTrading-v1')
 # # filepath = 'testtest/testmodel_saver_test_1'
 # # print(filepath)
-# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_5data_actAll_only"), format='checkpoint')
+# agent = Agent.load(directory=("test/EUR_USD/test/save_model_3act_5data_actT"), format='checkpoint')
 # record = []
-# for i in range(10):
+# for i in range(1):
 #     observation = env.reset()
 #     for t in range(10000):
 #         # env.render()
@@ -89,15 +89,15 @@ runner.close()
 #             data = [i,action,infos['reward'],infos['all_reward'],infos['budget'],infos['pro_order'],infos['loss_order']]
 #             record.append(data)
 #             print("Episode finished after {} timesteps".format(t+1))
-#             order = infos['order']
+#             # order = infos['order']
 #             break
-#     # env.plot_data()
+#     env.plot_data()
 # env.close()
-# #================== export data =====================
+#================== export data =====================
 # record = pd.DataFrame(record)
-# record_order = pd.DataFrame(order)
+# # record_order = pd.DataFrame(order)
 # record.columns = ["num_record","action","reward","all_reward","budget","profit_order","loss_order"]
 # # record_order.columns = ["data_date","data_status","data_type","data_tick","data_price","value"]
-# record.to_csv('test/EUR_USD/test/record_model_3act_5data_actOnly_2011.csv',index=False)
-# # record.to_csv('test/EUR_USD/test/record_5act_test_5data_2019.csv',index=False)
-# # record_order.to_csv('test/EUR_USD/test/record_order_3act_5data_sensei_2019.csv',index=False)
+# record.to_csv('test/EUR_USD/test/record_model_5act_5data_actT_2019.csv',index=False)
+# record.to_csv('test/EUR_USD/test/record_5act_test_5data_2019.csv',index=False)
+# record_order.to_csv('test/EUR_USD/test/record_order_3act_5data_sensei_2019.csv',index=False)

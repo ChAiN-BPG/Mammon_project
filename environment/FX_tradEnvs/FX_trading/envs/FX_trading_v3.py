@@ -51,15 +51,15 @@ class ForexEnv_test4(gym.Env):
         self.data_act_ema = []
         self.num_data = dataset
         for x in range(dataset):
-            df_data = pd.read_excel('/content/Mammon_project/data/dataset_indy/XM_EURUSD-'+str(2011 + x)+'_H1_indy.xlsx',header=None)
+            df_data = pd.read_excel('data/dataset_indy/XM_EURUSD-'+str(2019 + x)+'_H1_indy.xlsx',header=None)
             df_data.columns = ['date','time','open','high','low','close','volume','macd','macdsignal','macdhist','ATR' , 'slowk' , 'slowd', 'WILL','SAR','aroondown','aroonup']
             df_data = df_data.to_numpy()
             ## ================== input trade system action ==================
-            df_action_tr = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_'+str(2015 + x)+'.csv',index_col=0)
+            df_action_tr = pd.read_csv('data/trade_data/Trade_rider/action_Trade_rider_'+str(2019 + x)+'.csv',index_col=0)
             df_action_tr = df_action_tr.iloc[-(len(df_data)):,:]
-            df_action_tb = pd.read_csv('data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2015 + x)+'.csv',index_col=0)
+            df_action_tb = pd.read_csv('data/trade_data/Trend_bouncer/action_Trend_bouncer_'+str(2019 + x)+'.csv',index_col=0)
             df_action_tb = df_action_tb.iloc[-(len(df_data)):,:]
-            df_action_ema = pd.read_csv('data/trade_data/simple_ema/action_Simple_ema_'+str(2015 + x)+'.csv',index_col=0)
+            df_action_ema = pd.read_csv('data/trade_data/simple_ema/action_Simple_ema_'+str(2019 + x)+'.csv',index_col=0)
             df_action_ema = df_action_ema.iloc[-(len(df_data)):,:]
             self.data_act_tr.append(df_action_tr)
             self.data_act_tb.append(df_action_tb)
@@ -110,7 +110,7 @@ class ForexEnv_test4(gym.Env):
             # self.date_data = datetime.datetime(int(date.year),int(date.month),int(date.day),int(time[0]),int(time[1]))
         # init base for trading
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.amount = 0.05
         self.lot = 100000 # 100000 is standard lot , 10000 is mini lot , 1000 is nicro lot , 100 is nano lot
@@ -143,6 +143,7 @@ class ForexEnv_test4(gym.Env):
         # scaler = MinMaxScaler(feature_range=(-1,1))
         # scaler.fit(self.all_data[:,1:15])
         self.encoder = pickle.load(open(model, 'rb'))
+        self.onehot = pickle.load(open('model/encoder.pickle', 'rb'))
         # =========== render data ===============
         self.profit_order = 0
         self.loss_order = 0 
@@ -452,7 +453,7 @@ class ForexEnv_test4(gym.Env):
         self.yearsTick = len(self.dataset)
         #####
         self.count_tick = 0
-        self.balance = 200
+        self.balance = 200000
         self.budget = self.balance
         self.order_state = 0 # 0 = nop , 1 = buy order , -1 = sell order
         self.order_price = 0
