@@ -7,6 +7,8 @@ code นี้เป็นส่วนหนึ่งของโปรเจค
 2. gym
 3. tensorforce
 4. pickle
+
+
 หรือสามารถ run code ผ่าน google colab โดยไฟล์ project_in_colab.ipynb
 
 ### install  From Repository
